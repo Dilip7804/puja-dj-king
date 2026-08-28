@@ -8,7 +8,7 @@ st.set_page_config(
     page_title="PUJA DJ KING | Management",
     page_icon="🎧",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 # --- PREMIUM STYLING ---
@@ -25,22 +25,22 @@ st.markdown("""
         justify-content: space-between;
         align-items: center;
         background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-        padding: 15px 20px;
-        border-radius: 14px;
+        padding: 12px 15px;
+        border-radius: 12px;
         border: 1px solid #374151;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-        margin-bottom: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        margin-bottom: 10px;
     }
     .welcome-text {
         color: #9ca3af;
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 1px;
     }
     .brand-title {
         color: #f59e0b;
-        font-size: 1.4rem;
+        font-size: 1.25rem;
         font-weight: 800;
         margin: 0;
     }
@@ -52,22 +52,20 @@ st.markdown("""
 
     div.stForm {
         background-color: #111827;
-        padding: 15px;
-        border-radius: 14px;
+        padding: 12px;
+        border-radius: 12px;
         border: 1px solid #374151;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     }
 
     .stButton > button {
         background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
         color: #0b0f19;
         font-weight: 700;
-        border-radius: 10px;
+        border-radius: 8px;
         border: none;
-        padding: 0.6rem 1rem;
+        padding: 0.5rem 1rem;
         width: 100%;
-        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
     }
     .stButton > button:hover {
         background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
@@ -77,22 +75,22 @@ st.markdown("""
     section[data-testid="stSidebar"] {
         background-color: #030712;
         border-right: 1px solid #1f2937;
-        padding-top: 20px;
+        padding-top: 10px;
     }
     
     .stRadio div[role="radiogroup"] {
         background-color: #111827;
-        padding: 12px;
-        border-radius: 14px;
+        padding: 8px;
+        border-radius: 12px;
         border: 1px solid #374151;
     }
     
     .stRadio label {
         background-color: #1f2937 !important;
         color: #f3f4f6 !important;
-        padding: 10px 15px !important;
-        border-radius: 10px !important;
-        margin-bottom: 8px !important;
+        padding: 8px 12px !important;
+        border-radius: 8px !important;
+        margin-bottom: 6px !important;
         font-weight: 600 !important;
         border: 1px solid #374151 !important;
         cursor: pointer;
@@ -101,37 +99,35 @@ st.markdown("""
     .metrics-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-bottom: 15px;
+        gap: 8px;
+        margin-bottom: 10px;
     }
     .metric-card {
         background-color: #111827;
         border: 1px solid #374151;
-        padding: 12px;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        padding: 10px;
+        border-radius: 10px;
         text-align: center;
     }
     .metric-title {
         color: #9ca3af;
         font-weight: 600;
-        font-size: 0.8rem;
-        margin-bottom: 4px;
+        font-size: 0.75rem;
+        margin-bottom: 2px;
     }
     .metric-value {
         color: #f59e0b;
         font-weight: 800;
-        font-size: 1.25rem;
+        font-size: 1.1rem;
     }
     
     .footer-text {
         text-align: center;
         color: #f3f4f6;
-        font-size: 1rem;
-        margin-top: 35px;
-        margin-bottom: 20px;
+        font-size: 0.9rem;
+        margin-top: 25px;
+        margin-bottom: 15px;
         font-weight: 800;
-        letter-spacing: 0.5px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -149,14 +145,14 @@ def check_login():
             </style>
         """, unsafe_allow_html=True)
         
-        st.markdown("<div style='height: 12vh;'></div>", unsafe_allow_html=True)
-        col1, col2, col3 = st.columns([1, 1.2, 1])
+        st.markdown("<div style='height: 15vh;'></div>", unsafe_allow_html=True)
+        col1, col2, col3 = st.columns([0.1, 1, 0.1])
         with col2:
             st.markdown("""
-                <div style="text-align: center; margin-bottom: 25px;">
-                    <div style="font-size: 4rem; line-height: 1;">🎧</div>
-                    <h1 style="color: #f59e0b; font-weight: 900; font-size: 2.8rem; margin-top: 10px; margin-bottom: 0px;">PUJA DJ KING</h1>
-                    <p style="color: #94a3b8; font-size: 1.1rem; letter-spacing: 2px; text-transform: uppercase;">Secure Portal</p>
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 3.5rem; line-height: 1;">🎧</div>
+                    <h1 style="color: #f59e0b; font-weight: 900; font-size: 2.2rem; margin-top: 10px; margin-bottom: 0px;">PUJA DJ KING</h1>
+                    <p style="color: #94a3b8; font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase;">Secure Portal</p>
                 </div>
             """, unsafe_allow_html=True)
             
@@ -235,13 +231,12 @@ with col_head1:
             <div>
                 <div class="welcome-text">Welcome to</div>
                 <div class="brand-title">🎧 PUJA DJ KING</div>
-                <div style="color: #9ca3af; font-size: 0.7rem; margin-top: 2px;">Sound System & Management</div>
             </div>
         </div>
     """, unsafe_allow_html=True)
 
 with col_head2:
-    st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height: 4px;'></div>", unsafe_allow_html=True)
     if st.button("🔔", help="Live Notifications"):
         st.session_state.show_alerts = not st.session_state.show_alerts
         st.rerun()
@@ -271,25 +266,19 @@ if not df.empty:
 if st.session_state.get("show_alerts", False):
     with st.container():
         st.markdown("""
-            <div style="background-color: #111827; padding: 12px; border-radius: 12px; border: 1px solid #f59e0b; margin-top: 10px; margin-bottom: 15px;">
-                <h4 style="color: #f59e0b; margin-top: 0; font-size: 1rem;">🔔 Live Notifications & Alerts</h4>
+            <div style="background-color: #111827; padding: 10px; border-radius: 10px; border: 1px solid #f59e0b; margin-top: 8px; margin-bottom: 10px;">
+                <h4 style="color: #f59e0b; margin-top: 0; font-size: 0.9rem;">🔔 Live Notifications & Alerts</h4>
             </div>
         """, unsafe_allow_html=True)
-        cols_alert = st.columns(2)
-        with cols_alert[0]:
-            st.markdown("#### 💳 Pending Payments")
-            if pending_alerts:
-                for alert in pending_alerts:
-                    st.error(alert)
-            else:
-                st.success("✅ Sabhi ka payment clear hai!")
-        with cols_alert[1]:
-            st.markdown("#### 📅 Upcoming Events")
-            if upcoming_alerts:
-                for alert in upcoming_alerts:
-                    st.warning(alert)
-            else:
-                st.info("ℹ️ Aane wale 3 dino me koi event nahi hai.")
+        cols_alert = st.columns(1)
+        if pending_alerts:
+            for alert in pending_alerts[:3]:
+                st.error(alert)
+        if upcoming_alerts:
+            for alert in upcoming_alerts[:3]:
+                st.warning(alert)
+        if not pending_alerts and not upcoming_alerts:
+            st.success("✅ Sabhi ka payment clear hai aur koi paas me event nahi hai.")
 
 # --- EQUIPMENT OPTIONS ---
 equipment_options = [
@@ -314,7 +303,7 @@ if st.session_state.menu_selection == "🏠 Home / Dashboard":
         total_advance = 0
         total_pending = 0
 
-    st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
     st.markdown(f"""
         <div class="metrics-grid">
             <div class="metric-card">
@@ -336,31 +325,27 @@ if st.session_state.menu_selection == "🏠 Home / Dashboard":
         </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("<div style='margin-bottom: 15px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
     st.markdown("### ⚡ Quick Navigation")
     
-    # Quick Navigation Buttons Side-by-Side (Strictly Side-by-Side in columns)
     col_q1, col_q2 = st.columns(2)
     with col_q1:
-        if st.button("➕ Create New Booking"):
+        if st.button("➕ New Booking"):
             st.session_state.menu_selection = "➕ New Booking"
             st.rerun()
     with col_q2:
-        if st.button("📋 View All Bookings"):
+        if st.button("📋 View Bookings"):
             st.session_state.menu_selection = "📋 View Bookings"
             st.rerun()
 
 elif st.session_state.menu_selection == "➕ New Booking":
     st.markdown("### 📝 Nayi Booking Darj Karein")
     with st.form("booking_form", clear_on_submit=True):
-        col1, col2 = st.columns(2)
-        with col1:
-            customer_name = st.text_input("👤 Customer Name")
-            phone = st.text_input("📞 Mobile Number")
-            advance_paid = st.number_input("💵 Advance Amount (₹)", min_value=0, step=500)
-        with col2:
-            event_dates = st.date_input("📅 Event Date(s)", value=datetime.today())
-            total_amount = st.number_input("💰 Total Amount (₹)", min_value=0, step=1000)
+        customer_name = st.text_input("👤 Customer Name")
+        phone = st.text_input("📞 Mobile Number")
+        event_dates = st.date_input("📅 Event Date", value=datetime.today())
+        total_amount = st.number_input("💰 Total Amount (₹)", min_value=0, step=1000)
+        advance_paid = st.number_input("💵 Advance Amount (₹)", min_value=0, step=500)
             
         selected_equipment = st.multiselect("🔊 Sound System Select Karein", equipment_options)
         remarks = st.text_area("💬 Remarks / Notes")
@@ -398,27 +383,27 @@ elif st.session_state.menu_selection == "📋 View Bookings":
     else:
         st.dataframe(df, use_container_width=True)
         csv = df.to_csv(index=False).encode('utf-8')
-        st.download_button("📥 Download Bookings CSV", csv, 'puja_dj_bookings.csv', 'text/csv')
+        st.download_button("📥 Download CSV", csv, 'puja_dj_bookings.csv', 'text/csv')
 
 elif st.session_state.menu_selection == "📈 Ledger & Payments":
-    st.markdown("### 📈 Customer Ledger & Payment Update")
+    st.markdown("### 📈 Payment Update")
     if df.empty:
-        st.info("📭 Ledger ke liye koi data available nahi hai.")
+        st.info("📭 Koi data available nahi hai.")
     else:
-        st.dataframe(df[["Customer Name", "Phone", "Event Dates", "Total Amount", "Advance Paid", "Balance Due", "Status"]], use_container_width=True)
+        st.dataframe(df[["Customer Name", "Phone", "Total Amount", "Advance Paid", "Balance Due", "Status"]], use_container_width=True)
         st.markdown("---")
         customer_list = df.index.astype(str) + " - " + df["Customer Name"].astype(str) + " (" + df["Phone"].astype(str) + ")"
-        selected_row_label = st.selectbox("Kiska payment update karna hai select karein:", customer_list)
+        selected_row_label = st.selectbox("Customer Select Karein:", customer_list)
         
         if selected_row_label:
             idx = int(selected_row_label.split(" - ")[0])
             curr_row = df.loc[idx]
-            st.info(f"👤 Customer: **{curr_row['Customer Name']}** | Balance Due: ₹ {float(curr_row['Balance Due']):,.0f}")
-            additional_pay = st.number_input("💵 Kitna naya payment mila hai?", min_value=0, step=500)
+            st.info(f"👤 **{curr_row['Customer Name']}** | Due: ₹ {float(curr_row['Balance Due']):,.0f}")
+            additional_pay = st.number_input("💵 Kitna naya payment mila?", min_value=0, step=500)
             
             col_b1, col_b2 = st.columns(2)
             with col_b1:
-                if st.button("📥 Update Partial Payment"):
+                if st.button("📥 Update Payment"):
                     if additional_pay > 0:
                         df.loc[idx, "Advance Paid"] = float(df.loc[idx, "Advance Paid"]) + float(additional_pay)
                         df.loc[idx, "Balance Due"] = max(0.0, float(df.loc[idx, "Total Amount"]) - float(df.loc[idx, "Advance Paid"]))
@@ -427,17 +412,17 @@ elif st.session_state.menu_selection == "📈 Ledger & Payments":
                         st.success("✅ Payment Update Ho Gaya!")
                         st.rerun()
             with col_b2:
-                if st.button("✅ Mark as Fully Paid"):
+                if st.button("✅ Fully Paid"):
                     df.loc[idx, "Advance Paid"] = float(df.loc[idx, "Total Amount"])
                     df.loc[idx, "Balance Due"] = 0.0
                     df.loc[idx, "Status"] = "Paid"
                     save_data(df)
-                    st.success("🎉 Poori Tarah Clear Ho Gaya!")
+                    st.success("🎉 Clear Ho Gaya!")
                     st.rerun()
 
 elif st.session_state.menu_selection == "🔍 Search & Filter":
     st.markdown("### 🔍 Booking Talashein")
-    search_query = st.text_input("Mobile Number ya Naam enter karein:")
+    search_query = st.text_input("Mobile Number ya Naam dalein:")
     if search_query:
         result_df = df[
             df['Phone'].astype(str).str.contains(search_query, case=False, na=False) |
@@ -451,15 +436,15 @@ elif st.session_state.menu_selection == "🔍 Search & Filter":
 elif st.session_state.menu_selection == "❌ Delete Booking":
     st.markdown("### 🗑️ Booking Delete Karein")
     if df.empty:
-        st.info("📭 Delete karne ke liye koi record nahi hai.")
+        st.info("📭 Koi record nahi hai.")
     else:
         st.dataframe(df, use_container_width=True)
-        row_idx = st.number_input("Delete karne ke liye Row Index dalein:", min_value=0, max_value=max(0, len(df)-1), step=1)
-        if st.button("❌ Selected Booking Delete Karein"):
+        row_idx = st.number_input("Row Index dalein:", min_value=0, max_value=max(0, len(df)-1), step=1)
+        if st.button("❌ Delete Karein"):
             if len(df) > 0:
                 df = df.drop(row_idx).reset_index(drop=True)
                 save_data(df)
-                st.success("🗑️ Booking hata di gayi hai!")
+                st.success("🗑️ Hata di gayi hai!")
                 st.rerun()
 
 # --- FOOTER ---
