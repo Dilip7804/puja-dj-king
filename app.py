@@ -66,7 +66,7 @@ st.markdown("""
         font-weight: 700;
         border-radius: 10px;
         border: none;
-        padding: 0.6rem 1.2rem;
+        padding: 0.6rem 0.5rem;
         width: 100%;
         box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
         transition: all 0.3s ease;
@@ -361,33 +361,36 @@ if st.session_state.menu_selection == "🏠 Home / Dashboard":
 
     st.markdown("<div style='margin-bottom: 25px;'></div>", unsafe_allow_html=True)
     
-    # --- QUICK NAVIGATION & NOTIFICATION BELL (All 4 Buttons + Bell in Line Layout) ---
+    # --- QUICK NAVIGATION & NOTIFICATION BELL (2x2 Grid + Bell aligned) ---
     st.markdown("<h3 style='text-align: center;'>⚡ Quick Navigation</h3>", unsafe_allow_html=True)
     
-    col_main, col_bell = st.columns([5.2, 0.8])
+    col_btn1, col_btn2 = st.columns(2)
+    with col_btn1:
+        if st.button("➕ Create Booking"):
+            st.session_state.menu_selection = "➕ New Booking"
+            st.rerun()
+    with col_btn2:
+        if st.button("📋 View Bookings"):
+            st.session_state.menu_selection = "📋 View Bookings"
+            st.rerun()
+            
+    st.markdown("<div style='height: 5px;'></div>", unsafe_allow_html=True)
     
-    with col_main:
-        col_nc1, col_nc2 = st.columns(2)
-        with col_nc1:
-            if st.button("➕ Create Booking"):
-                st.session_state.menu_selection = "➕ New Booking"
-                st.rerun()
-            st.markdown("<div style='height: 5px;'></div>", unsafe_allow_html=True)
-            if st.button("🔍 Search Booking"):
-                st.session_state.menu_selection = "🔍 Search & Filter"
-                st.rerun()
-                
-        with col_nc2:
-            if st.button("📋 View Bookings"):
-                st.session_state.menu_selection = "📋 View Bookings"
-                st.rerun()
-            st.markdown("<div style='height: 5px;'></div>", unsafe_allow_html=True)
-            if st.button("❌ Delete Booking"):
-                st.session_state.menu_selection = "❌ Delete Booking"
-                st.rerun()
-                
+    col_btn3, col_bell = st.columns([1, 1])
+    with col_btn3:
+        if st.button("🔍 Search Booking"):
+            st.session_state.menu_selection = "🔍 Search & Filter"
+            st.rerun()
     with col_bell:
-        st.markdown("<div style='height: 18px;'></div>", unsafe_allow_html=True)
+        if st.button("❌ Delete Booking"):
+            st.session_state.menu_selection = "❌ Delete Booking"
+            st.rerun()
+
+    st.markdown("<div style='height: 5px;'></div>", unsafe_allow_html=True)
+    
+    # Notification Bell centered below or neatly placed
+    col_bell_center1, col_bell_center2, col_bell_center3 = st.columns([2, 1, 2])
+    with col_bell_center2:
         if st.button("🔔", help="Click to View Live Alerts"):
             st.session_state.show_alerts = not st.session_state.get("show_alerts", False)
             st.rerun()
