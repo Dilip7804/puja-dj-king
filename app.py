@@ -11,7 +11,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- PREMIUM STYLING & SCRIPT ---
+# --- PREMIUM STYLING & AUTO-HIDE SCRIPT ---
 st.markdown("""
     <style>
     .stApp {
@@ -19,8 +19,11 @@ st.markdown("""
         color: #f3f4f6;
     }
     
-    /* Top Header Layout */
-    .top-header-container {
+    /* Top Header Layout with Integrated Bell */
+    .top-header-box {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
         padding: 15px 20px;
         border-radius: 14px;
@@ -30,14 +33,14 @@ st.markdown("""
     }
     .welcome-text {
         color: #9ca3af;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 1px;
     }
     .brand-title {
         color: #f59e0b;
-        font-size: 1.5rem;
+        font-size: 1.4rem;
         font-weight: 800;
         margin: 0;
     }
@@ -61,14 +64,13 @@ st.markdown("""
         font-weight: 700;
         border-radius: 10px;
         border: none;
-        padding: 0.6rem 1.2rem;
+        padding: 0.6rem 1rem;
         width: 100%;
         box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
         transition: all 0.3s ease;
     }
     .stButton > button:hover {
         background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-        box-shadow: 0 6px 16px rgba(245, 158, 11, 0.5);
         color: #000000;
     }
 
@@ -83,7 +85,6 @@ st.markdown("""
         padding: 12px;
         border-radius: 14px;
         border: 1px solid #374151;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
     }
     
     .stRadio label {
@@ -121,6 +122,16 @@ st.markdown("""
         color: #f59e0b;
         font-weight: 800;
         font-size: 1.25rem;
+    }
+    
+    .footer-text {
+        text-align: center;
+        color: #6b7280;
+        font-size: 0.85rem;
+        margin-top: 30px;
+        margin-bottom: 15px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -209,6 +220,16 @@ selected_menu = st.sidebar.radio("Select Option", options, index=options.index(s
 
 if selected_menu != st.session_state.menu_selection:
     st.session_state.menu_selection = selected_menu
+    # JavaScript trick to auto-close sidebar on menu selection
+    st.markdown("""
+        <script>
+            const host = window.parent.document;
+            const sidebarBtn = host.querySelector('button[kind="header"]');
+            if (sidebarBtn && host.querySelector('section[data-testid="stSidebar"][aria-expanded="true"]')) {
+                sidebarBtn.click();
+            }
+        </script>
+    """, unsafe_allow_html=True)
     st.rerun()
 
 st.sidebar.markdown("---")
@@ -216,19 +237,20 @@ if st.sidebar.button("🔒 Logout"):
     st.session_state.authenticated = False
     st.rerun()
 
-# --- TOP HEADER SECTION (Welcome & Top-Right Corner Bell) ---
+# --- TOP HEADER WITH INTEGRATED BELL BUTTON ---
 col_head1, col_head2 = st.columns([5, 1])
 with col_head1:
     st.markdown("""
-        <div class="top-header-container">
-            <div class="welcome-text">Welcome to</div>
-            <div class="brand-title">🎧 PUJA DJ KING</div>
-            <div style="color: #9ca3af; font-size: 0.75rem; margin-top: 2px;">Professional Sound System & Event Management</div>
+        <div class="top-header-box">
+            <div>
+                <div class="welcome-text">Welcome to</div>
+                <div class="brand-title">🎧 PUJA DJ KING</div>
+                <div style="color: #9ca3af; font-size: 0.7rem; margin-top: 2px;">Sound System & Management</div>
+            </div>
         </div>
     """, unsafe_allow_html=True)
 
 with col_head2:
-    st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
     if st.button("🔔", help="Live Notifications"):
         st.session_state.show_alerts = not st.session_state.show_alerts
         st.rerun()
@@ -325,13 +347,14 @@ if st.session_state.menu_selection == "🏠 Home / Dashboard":
     st.markdown("<div style='margin-bottom: 15px;'></div>", unsafe_allow_html=True)
     st.markdown("### ⚡ Quick Navigation")
     
+    # Quick Navigation Buttons Side-by-Side (Ek hi line me)
     col_q1, col_q2 = st.columns(2)
     with col_q1:
-        if st.button("➕ Create New Booking"):
+        if st.button("➕ New Booking"):
             st.session_state.menu_selection = "➕ New Booking"
             st.rerun()
     with col_q2:
-        if st.button("📋 View All Bookings"):
+        if st.button("📋 View Bookings"):
             st.session_state.menu_selection = "📋 View Bookings"
             st.rerun()
 
@@ -446,3 +469,6 @@ elif st.session_state.menu_selection == "❌ Delete Booking":
                 save_data(df)
                 st.success("🗑️ Booking hata di gayi hai!")
                 st.rerun()
+
+# --- FOOTER ---
+st.markdown('<div class="footer-text">Created by Dilip Singh</div>', unsafe_allow_html=True)
