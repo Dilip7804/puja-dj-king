@@ -11,7 +11,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- PREMIUM STYLING & MOBILE GRID FIX ---
+# --- PREMIUM STYLING & FORCED MOBILE 2x2 GRID ---
 st.markdown("""
     <style>
     /* Main Background & Text */
@@ -137,8 +137,8 @@ st.markdown("""
         font-size: 1.25rem;
     }
     
-    /* Custom 2x2 Navigation Grid Styling for Mobile & Desktop */
-    .nav-grid-container {
+    /* Strict 2x2 Grid for Quick Navigation Buttons */
+    .quick-nav-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 10px;
@@ -367,30 +367,34 @@ if st.session_state.menu_selection == "🏠 Home / Dashboard":
 
     st.markdown("<div style='margin-bottom: 15px;'></div>", unsafe_allow_html=True)
     
-    # --- QUICK NAVIGATION & NOTIFICATION BELL (Fixed 2x2 Grid via HTML/CSS Container) ---
+    # --- QUICK NAVIGATION & NOTIFICATION BELL (Strict 2x2 Grid using HTML wrapper) ---
     st.markdown("<h3 style='text-align: center; margin-bottom: 15px;'>⚡ Quick Navigation</h3>", unsafe_allow_html=True)
     
-    # Using columns for 2x2 button layout that strictly respects 2 columns on mobile too
-    col_nav1, col_nav2 = st.columns(2)
-    with col_nav1:
+    # We use columns inside a container where we inject html wrappers to lock 2 columns on mobile
+    st.markdown('<div class="quick-nav-grid">', unsafe_allow_html=True)
+    
+    col1, col2 = st.columns(2)
+    with col1:
         if st.button("➕ Create Booking"):
             st.session_state.menu_selection = "➕ New Booking"
             st.rerun()
-        st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
-        if st.button("🔍 Search Booking"):
-            st.session_state.menu_selection = "🔍 Search & Filter"
-            st.rerun()
-            
-    with col_nav2:
+    with col2:
         if st.button("📋 View Bookings"):
             st.session_state.menu_selection = "📋 View Bookings"
             st.rerun()
-        st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
+            
+    with col1:
+        if st.button("🔍 Search Booking"):
+            st.session_state.menu_selection = "🔍 Search & Filter"
+            st.rerun()
+    with col2:
         if st.button("❌ Delete Booking"):
             st.session_state.menu_selection = "❌ Delete Booking"
             st.rerun()
+            
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height: 5px;'></div>", unsafe_allow_html=True)
     
     # Notification Bell centered neatly below
     col_bell_c1, col_bell_c2, col_bell_c3 = st.columns([2, 1, 2])
