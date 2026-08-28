@@ -8,7 +8,7 @@ st.set_page_config(
     page_title="PUJA DJ KING | Management",
     page_icon="🎧",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
 # --- PREMIUM STYLING & AUTO-HIDE SCRIPT ---
@@ -19,7 +19,7 @@ st.markdown("""
         color: #f3f4f6;
     }
     
-    /* Top Header Layout with Integrated Bell */
+    /* Top Header Box layout with Integrated Bell */
     .top-header-box {
         display: flex;
         justify-content: space-between;
@@ -126,11 +126,11 @@ st.markdown("""
     
     .footer-text {
         text-align: center;
-        color: #6b7280;
-        font-size: 0.85rem;
+        color: #9ca3af;
+        font-size: 0.9rem;
         margin-top: 30px;
         margin-bottom: 15px;
-        font-weight: 500;
+        font-weight: 700;
         letter-spacing: 0.5px;
     }
     </style>
@@ -220,7 +220,6 @@ selected_menu = st.sidebar.radio("Select Option", options, index=options.index(s
 
 if selected_menu != st.session_state.menu_selection:
     st.session_state.menu_selection = selected_menu
-    # JavaScript trick to auto-close sidebar on menu selection
     st.markdown("""
         <script>
             const host = window.parent.document;
@@ -237,11 +236,11 @@ if st.sidebar.button("🔒 Logout"):
     st.session_state.authenticated = False
     st.rerun()
 
-# --- TOP HEADER WITH INTEGRATED BELL BUTTON ---
+# --- TOP HEADER BOX WITH INTEGRATED BELL BUTTON ---
 col_head1, col_head2 = st.columns([5, 1])
 with col_head1:
     st.markdown("""
-        <div class="top-header-box">
+        <div class="top-header-box" style="margin-bottom: 0px;">
             <div>
                 <div class="welcome-text">Welcome to</div>
                 <div class="brand-title">🎧 PUJA DJ KING</div>
@@ -251,6 +250,8 @@ with col_head1:
     """, unsafe_allow_html=True)
 
 with col_head2:
+    # Placing the bell button neatly aligned inside the header block via vertical spacing
+    st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
     if st.button("🔔", help="Live Notifications"):
         st.session_state.show_alerts = not st.session_state.show_alerts
         st.rerun()
@@ -280,7 +281,7 @@ if not df.empty:
 if st.session_state.get("show_alerts", False):
     with st.container():
         st.markdown("""
-            <div style="background-color: #111827; padding: 12px; border-radius: 12px; border: 1px solid #f59e0b; margin-bottom: 15px;">
+            <div style="background-color: #111827; padding: 12px; border-radius: 12px; border: 1px solid #f59e0b; margin-top: 10px; margin-bottom: 15px;">
                 <h4 style="color: #f59e0b; margin-top: 0; font-size: 1rem;">🔔 Live Notifications & Alerts</h4>
             </div>
         """, unsafe_allow_html=True)
@@ -323,6 +324,7 @@ if st.session_state.menu_selection == "🏠 Home / Dashboard":
         total_advance = 0
         total_pending = 0
 
+    st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
     st.markdown(f"""
         <div class="metrics-grid">
             <div class="metric-card">
@@ -347,14 +349,14 @@ if st.session_state.menu_selection == "🏠 Home / Dashboard":
     st.markdown("<div style='margin-bottom: 15px;'></div>", unsafe_allow_html=True)
     st.markdown("### ⚡ Quick Navigation")
     
-    # Quick Navigation Buttons Side-by-Side (Ek hi line me)
+    # Quick Navigation Buttons Side-by-Side (Strictly side-by-side in same columns line)
     col_q1, col_q2 = st.columns(2)
     with col_q1:
-        if st.button("➕ New Booking"):
+        if st.button("➕ Create New Booking"):
             st.session_state.menu_selection = "➕ New Booking"
             st.rerun()
     with col_q2:
-        if st.button("📋 View Bookings"):
+        if st.button("📋 View All Bookings"):
             st.session_state.menu_selection = "📋 View Bookings"
             st.rerun()
 
