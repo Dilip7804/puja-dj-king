@@ -1,176 +1,232 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime
 import os
+from datetime import datetime
 
-# Page Configuration
+# --- PAGE CONFIGURATION ---
 st.set_page_config(
-    page_title="PUJA DJ KING - Pro Booking Manager", 
-    page_icon="🎧", 
-    layout="wide"
+    page_title="PUJA DJ KING | Management",
+    page_icon="🎧",
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
-# Database file
-DB_FILE = "puja_dj_bookings.csv"
+# --- PREMIUM STYLING (CSS) ---
+st.markdown("""
+    <style>
+    /* Main Background & Text */
+    .stApp {
+        background-color: #0b0f19;
+        color: #f3f4f6;
+    }
+    
+    /* Header Card Style */
+    .header-card {
+        background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        padding: 25px;
+        border-radius: 16px;
+        border: 1px solid #374151;
+        text-align: center;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        margin-bottom: 25px;
+    }
+    .header-title {
+        color: #f59e0b;
+        font-size: 2.2rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        margin-bottom: 5px;
+    }
+    .header-subtitle {
+        color: #9ca3af;
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    /* Section Headers */
+    h2, h3 {
+        color: #f3f4f6 !important;
+        font-weight: 700 !important;
+    }
+
+    /* Form & Input Fields Container */
+    div.stForm {
+        background-color: #111827;
+        padding: 20px;
+        border-radius: 14px;
+        border: 1px solid #374151;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    /* Buttons Styling */
+    .stButton > button {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: #0b0f19;
+        font-weight: 700;
+        border-radius: 10px;
+        border: none;
+        padding: 0.6rem 1.2rem;
+        width: 100%;
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        transition: all 0.3s ease;
+    }
+    .stButton > button:hover {
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        box-shadow: 0 6px 16px rgba(245, 158, 11, 0.5);
+        color: #000000;
+    }
+
+    /* Sidebar Styling */
+    section[data-testid="stSidebar"] {
+        background-color: #030712;
+        border-right: 1px solid #1f2937;
+    }
+    section[data-testid="stSidebar"] .stMarkdown {
+        color: #e5e7eb;
+    }
+
+    /* Dataframe Table Look */
+    dataframe, table {
+        border-radius: 10px !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# --- CSV FILE HANDLING ---
+CSV_FILE = "puja_dj_bookings.csv"
 
 def load_data():
-    if os.path.exists(DB_FILE):
-        return pd.read_csv(DB_FILE)
+    if os.path.exists(CSV_FILE):
+        return pd.read_csv(CSV_FILE)
     else:
+        # Default columns agar file na ho
         return pd.DataFrame(columns=[
-            "Customer Name", "Phone", "Event Dates", "Equipment Items", 
-            "Advance Paid", "Total Amount", "Balance Due", "Status", "Remarks"
+            "Customer Name", "Phone", "Event Dates", "Equipment", "Advance Paid", "Total Amount", "Remarks"
         ])
 
 def save_data(df):
-    df.to_csv(DB_FILE, index=False)
+    df.to_csv(CSV_FILE, index=False)
 
 df = load_data()
 
-# Header Branding
-st.title("🎧 PUJA DJ KING 🎧")
-st.markdown("### **Professional Sound System & Event Management System**")
-st.markdown("---")
+# --- HEADER SECTION ---
+st.markdown("""
+    <div class="header-card">
+        <div class="header-title">🎧 PUJA DJ KING</div>
+        <div class="header-subtitle">Professional Sound System & Event Management Dashboard</div>
+    </div>
+""", unsafe_allow_html=True)
 
-# Sidebar Navigation
-st.sidebar.markdown("## 🎛️ Navigation Menu")
-menu = st.sidebar.radio("Go to", ["📅 Check Availability", "➕ New Booking", "🔍 Search by Mobile No.", "📋 All Bookings List"])
+# --- SIDEBAR MENU NAVIGATION ---
+st.sidebar.markdown("### 🎛️ Navigation Menu")
+menu = st.sidebar.radio("Go to", ["➕ New Booking", "📋 View Bookings", "🔍 Search & Filter", "❌ Delete Booking"])
 
-# 1. Check Availability
-if menu == "📅 Check Availability":
-    st.header("🔍 Date Availability Check Karein")
-    selected_date = st.date_input("Select Event Date", datetime.today())
-    selected_date_str = selected_date.strftime("%Y-%m-%d")
-    
-    if not df.empty:
-        matched_rows = df[df["Event Dates"].astype(str).str.contains(selected_date_str)]
-        
-        if not matched_rows.empty:
-            st.error(f"❌ **Status:** {selected_date_str} ko sound system **ALREADY BOOKED** hai!")
-            st.markdown("### 📋 Booking Details:")
-            st.dataframe(matched_rows, use_container_width=True)
-        else:
-            st.success(f"✅ **Status:** {selected_date_str} bilkul **KHALI** hai! Aap booking le sakte hain.")
-            
-        st.markdown("---")
-        st.subheader("📊 Business Summary")
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric("Total Bookings", len(df))
-        with col2:
-            total_revenue = df["Total Amount"].sum() if "Total Amount" in df.columns else 0
-            st.metric("Total Business Value", f"₹ {total_revenue}")
-        with col3:
-            total_advance = df["Advance Paid"].sum() if "Advance Paid" in df.columns else 0
-            st.metric("Total Advance Received", f"₹ {total_advance}")
-    else:
-        st.info("Abhi tak system me koi booking darj nahi hai.")
+# تجهیزات options (Equipment List)
+equipment_options = [
+    "JBL Line Array Setup", 
+    "Dual Bass Heavy Setup", 
+    "Double Top Box Setup", 
+    "Full Sound & Light Setup", 
+    "Generator & Power Backup"
+]
 
-# 2. New Booking
-elif menu == "➕ New Booking":
-    st.header("📝 Nayi Booking Darj Karein (Pro Form)")
+# --- 1. NEW BOOKING PAGE ---
+if menu == "➕ New Booking":
+    st.markdown("### 📝 Nayi Booking Darj Karein")
     
     with st.form("booking_form", clear_on_submit=True):
         col1, col2 = st.columns(2)
+        
         with col1:
-            c_name = st.text_input("Customer Name (ग्राहक का नाम)")
-            c_phone = st.text_input("Phone Number (मोबाइल नंबर)")
+            customer_name = st.text_input("👤 Customer Name")
+            phone = st.text_input("📞 Mobile Number")
+            advance_paid = st.number_input("💵 Advance Amount (₹)", min_value=0, step=500)
+            
         with col2:
-            status = st.selectbox("Booking Status", ["Confirmed", "Pending", "Completed"])
-            remarks = st.text_input("Remarks / Notes (विशेष नोट या पता)")
-
-        st.markdown("---")
-        st.subheader("🎶 Sound Equipments & Items (Kya-kya lagana hai?)")
+            event_dates = st.date_input("📅 Event Date(s)", value=datetime.today())
+            total_amount = st.number_input("💰 Total Amount (₹)", min_value=0, step=1000)
+            
+        selected_equipment = st.multiselect("🔊 Sound System / Equipment Select Karein", equipment_options)
+        remarks = st.text_area("💬 Remarks / Notes (Location, Time, etc.)")
         
-        equipments = st.multiselect(
-            "Select Sound Items:",
-            ["Double Base (JBL/Dual)", "Single Base", "Top Box (Double Horn)", "DJ Mixer & Player", "Generator", "Lighting / Fog Machine", "Mic Setup / Cordless", "Full Setup (Heavy)"]
-        )
-        custom_equipment = st.text_input("Other Items (Agar kuch aur alag se ho toh yahan likhein)")
-
-        st.markdown("---")
-        st.subheader("📅 Event Dates Selection")
+        submit_btn = st.form_submit_button("🚀 Save Booking")
         
-        # Radio button to switch between Single and Double dates inside form
-        num_dates = st.radio("Kitni tarikh ki booking hai?", ["Single Date", "Double / Multiple Dates"])
-        
-        event_dates_list = []
-        if num_dates == "Single Date":
-            single_date = st.date_input("Event Date", datetime.today())
-            event_dates_list.append(single_date.strftime("%Y-%m-%d"))
-        else:
-            col_d1, col_d2 = st.columns(2)
-            with col_d1:
-                d1 = st.date_input("Pehli Date (First Date)", datetime.today())
-            with col_d2:
-                d2 = st.date_input("Doosri Date (Second Date)", datetime.today())
-            event_dates_list = [d1.strftime("%Y-%m-%d"), d2.strftime("%Y-%m-%d")]
-
-        st.markdown("---")
-        col3, col4 = st.columns(2)
-        with col3:
-            advance_paid = st.number_input("Advance Payment (₹)", min_value=0.0, step=500.0)
-        with col4:
-            total_amount = st.number_input("Total Amount (₹)", min_value=0.0, step=500.0)
-
-        submit = st.form_submit_button("💾 Save Booking")
-        
-        if submit:
-            if c_name and c_phone:
-                date_str_combined = ", ".join(event_dates_list)
-                all_items_str = ", ".join(equipments)
-                if custom_equipment:
-                    all_items_str += f", {custom_equipment}"
+        if submit_btn:
+            if customer_name and phone:
+                # Format equipment list to string
+                eq_str = ", ".join(selected_equipment)
+                date_str = str(event_dates)
                 
-                balance_due = total_amount - advance_paid
-
-                new_row = {
-                    "Customer Name": c_name,
-                    "Phone": c_phone,
-                    "Event Dates": date_str_combined,
-                    "Equipment Items": all_items_str if all_items_str else "Standard Sound Setup",
-                    "Advance Paid": advance_paid,
-                    "Total Amount": total_amount,
-                    "Balance Due": balance_due,
-                    "Status": status,
-                    "Remarks": remarks if remarks else "None"
-                }
-                df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+                new_row = pd.DataFrame({
+                    "Customer Name": [customer_name],
+                    "Phone": [phone],
+                    "Event Dates": [date_str],
+                    "Equipment": [eq_str],
+                    "Advance Paid": [advance_paid],
+                    "Total Amount": [total_amount],
+                    "Remarks": [remarks]
+                })
+                
+                df = pd.concat([df, new_row], ignore_index=True)
                 save_data(df)
-                st.success("🎉 Booking successfully save ho gayi hai!")
+                st.success("🎉 Booking Safalpurvak Save Ho Gayi!")
             else:
-                st.error("Kripya Customer Name aur Phone Number zaroor bharein.")
+                st.error("⚠️ Kripya Customer Name aur Mobile Number zaroor bharein!")
 
-# 3. Search by Mobile Number
-elif menu == "🔍 Search by Mobile No.":
-    st.header("🔍 Customer Search by Mobile Number")
-    search_phone = st.text_input("Customer ka Mobile Number dalein:")
+# --- 2. VIEW BOOKINGS PAGE ---
+elif menu == "📋 View Bookings":
+    st.markdown("### 📋 Sabhi Bookings ki List")
     
-    if search_phone:
-        if not df.empty:
-            result_df = df[df["Phone"].astype(str).str.contains(search_phone)]
-            if not result_df.empty:
-                st.success(f"mil gaye {len(result_df)} booking(s) is number par:")
-                st.dataframe(result_df, use_container_width=True)
-            else:
-                st.warning("Is mobile number par koi booking nahi mili.")
-        else:
-            st.info("Database khali hai.")
-
-# 4. All Bookings List
-elif menu == "📋 All Bookings List":
-    st.header("📋 Sabhi Bookings ki List")
-    
-    if not df.empty:
+    if df.empty:
+        st.info("📭 Abhi tak koi booking nahi hai.")
+    else:
+        # Style dataframe for dark view
         st.dataframe(df, use_container_width=True)
         
-        st.markdown("---")
-        st.subheader("❌ Booking Delete Karein")
-        delete_index = st.number_input("Row Index Number Dalein Delete karne ke liye", min_value=0, max_value=max(0, len(df)-1), step=1)
+        # Download CSV option
+        csv = df.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="📥 Download Bookings CSV",
+            data=csv,
+            file_name='puja_dj_bookings.csv',
+            mime='text/csv',
+        )
+
+# --- 3. SEARCH & FILTER PAGE ---
+elif menu == "🔍 Search & Filter":
+    st.markdown("### 🔍 Booking Talashein (Search by Mobile / Name)")
+    
+    search_query = st.text_input("Mobile Number ya Naam enter karein:")
+    
+    if search_query:
+        # Search filter logic
+        result_df = df[
+            df['Phone'].astype(str).str.contains(search_query, case=False, na=False) |
+            df['Customer Name'].astype(str).str.contains(search_query, case=False, na=False)
+        ]
         
-        if st.button("Delete Selected Booking"):
-            df = df.drop(delete_index).reset_index(drop=True)
-            save_data(df)
-            st.success("Booking hata di gayi hai! Page refresh karein.")
+        if not result_df.empty:
+            st.success(f"🎯 Total {len(result_df)} match mile hain:")
+            st.dataframe(result_df, use_container_width=True)
+        else:
+            st.warning("❌ Is naam ya number se koi booking nahi mili.")
     else:
-        st.info("Abhi tak koi booking record available nahi hai.")
+        st.info("👆 Upar search box me kisi customer ka mobile number ya naam type karein.")
+
+# --- 4. DELETE BOOKING PAGE ---
+elif menu == "❌ Delete Booking":
+    st.markdown("### 🗑️ Booking Delete Karein")
+    
+    if df.empty:
+        st.info("📭 Delete karne ke liye koi record nahi hai.")
+    else:
+        st.dataframe(df, use_container_width=True)
+        
+        row_idx = st.number_input("Kahin galti ho gayi? Upar table se Row Index number dalein jise delete karna hai:", min_value=0, max_value=max(0, len(df)-1), step=1)
+        
+        if st.button("❌ Selected Booking Delete Karein"):
+            if len(df) > 0:
+                df = df.drop(row_idx).reset_index(drop=True)
+                save_data(df)
+                st.success(f"🗑️ Row Index {row_idx} ko hata diya gaya hai! Page refresh karein.")
+                st.rerun()
