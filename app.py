@@ -11,7 +11,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- PREMIUM STYLING (CSS) ---
+# --- PREMIUM STYLING & AUTO-HIDE SIDEBAR SCRIPT ---
 st.markdown("""
     <style>
     /* Main Background & Text */
@@ -20,7 +20,7 @@ st.markdown("""
         color: #f3f4f6;
     }
     
-    /* Top Header Layout (Welcome & Bell) */
+    /* Top Header Layout (Welcome & Clickable Bell) */
     .top-header-container {
         display: flex;
         justify-content: space-between;
@@ -45,14 +45,21 @@ st.markdown("""
         font-weight: 800;
         margin: 0;
     }
-    .bell-icon {
+    .bell-btn {
         background-color: #374151;
         color: #f59e0b;
         font-size: 1.2rem;
-        padding: 8px 12px;
+        padding: 8px 14px;
         border-radius: 50%;
         border: 1px solid #4b5563;
+        cursor: pointer;
+        text-decoration: none;
         box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        transition: all 0.2s;
+    }
+    .bell-btn:hover {
+        background-color: #4b5563;
+        transform: scale(1.05);
     }
 
     /* Section Headers */
@@ -225,9 +232,11 @@ df = load_data()
 # --- SIDEBAR NAVIGATION SETUP ---
 st.sidebar.markdown("### 🎛️ Control Panel")
 
-# Session state for menu selection and sidebar collapse state
 if "menu_selection" not in st.session_state:
     st.session_state.menu_selection = "🏠 Home / Dashboard"
+
+if "show_alerts" not in st.session_state:
+    st.session_state.show_alerts = False
 
 options = [
     "🏠 Home / Dashboard",
@@ -242,6 +251,13 @@ selected_menu = st.sidebar.radio("Select Option", options, index=options.index(s
 
 if selected_menu != st.session_state.menu_selection:
     st.session_state.menu_selection = selected_menu
+    # JavaScript code to automatically collapse sidebar on mobile/desktop when a menu item is clicked
+    st.markdown("""
+        <script>
+            const sidebarCollapseBtn = window.parent.document.querySelector('button[kind="header"]');
+            if (sidebarCollapseBtn) { sidebarCollapseBtn.click(); }
+        </script>
+    """, unsafe_allow_html=True)
     st.rerun()
 
 st.sidebar.markdown("---")
@@ -249,21 +265,26 @@ if st.sidebar.button("🔒 Logout"):
     st.session_state.authenticated = False
     st.rerun()
 
-# --- TOP HEADER SECTION (Welcome & Alert Bell) ---
-st.markdown("""
-    <div class="top-header-container">
-        <div>
-            <div class="welcome-text">Welcome to</div>
-            <div class="brand-title">🎧 PUJA DJ KING</div>
-            <div style="color: #9ca3af; font-size: 0.8rem;">Professional Sound System & Event Management</div>
+# --- TOP HEADER SECTION (Welcome & Clickable Bell Button) ---
+col_h1, col_h2 = st.columns([6, 1])
+with col_h1:
+    st.markdown("""
+        <div class="top-header-container" style="margin-bottom: 0px;">
+            <div>
+                <div class="welcome-text">Welcome to</div>
+                <div class="brand-title">🎧 PUJA DJ KING</div>
+                <div style="color: #9ca3af; font-size: 0.8rem;">Professional Sound System & Event Management</div>
+            </div>
         </div>
-        <div>
-            <span class="bell-icon" title="Notifications">🔔</span>
-        </div>
-    </div>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
-# --- SMART ALERTS (Auto-triggered or expandable) ---
+with col_h2:
+    st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+    if st.button("🔔", help="Click to View Live Alerts"):
+        st.session_state.show_alerts = not st.session_state.show_alerts
+        st.rerun()
+
+# --- SMART ALERTS (Toggled directly via Bell button) ---
 pending_alerts = []
 upcoming_alerts = []
 if not df.empty:
@@ -285,8 +306,14 @@ if not df.empty:
         except:
             pass
 
-if pending_alerts or upcoming_alerts:
-    with st.expander("🔔 **Live Alerts & Notifications** (Click to Expand)", expanded=False):
+if st.session_state.get("show_alerts", False):
+    st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+    with st.container():
+        st.markdown("""
+            <div style="background-color: #111827; padding: 15px; border-radius: 12px; border: 1px solid #f59e0b; margin-bottom: 15px;">
+                <h4 style="color: #f59e0b; margin-top: 0;">🔔 Live Notifications & Alerts</h4>
+            </div>
+        """, unsafe_allow_html=True)
         cols_alert = st.columns(2)
         with cols_alert[0]:
             st.markdown("#### 💳 Pending Payments")
@@ -350,7 +377,7 @@ if st.session_state.menu_selection == "🏠 Home / Dashboard":
         </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("<div style='margin-bottom: 20px;'></div>", st.session_state.get('use_container_width', True))
+    st.markdown("<div style='margin-bottom: 20px;'></div>", unsafe_allow_html=True)
     st.markdown("### ⚡ Quick Navigation")
     
     col_q1, col_q2 = st.columns(2)
