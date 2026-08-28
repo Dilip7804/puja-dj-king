@@ -361,26 +361,33 @@ if st.session_state.menu_selection == "🏠 Home / Dashboard":
 
     st.markdown("<div style='margin-bottom: 25px;'></div>", unsafe_allow_html=True)
     
-    # --- QUICK NAVIGATION & NOTIFICATION BELL (Flex Inline Layout) ---
+    # --- QUICK NAVIGATION & NOTIFICATION BELL (All 4 Buttons + Bell in Line Layout) ---
     st.markdown("<h3 style='text-align: center;'>⚡ Quick Navigation</h3>", unsafe_allow_html=True)
     
-    col_main, col_bell = st.columns([5, 1])
+    col_main, col_bell = st.columns([5.2, 0.8])
     
     with col_main:
-        col_nc1, col_nc2, col_nc3 = st.columns([1, 4, 1])
-        with col_nc2:
-            if st.button("➕ Create New Booking"):
+        col_nc1, col_nc2 = st.columns(2)
+        with col_nc1:
+            if st.button("➕ Create Booking"):
                 st.session_state.menu_selection = "➕ New Booking"
                 st.rerun()
-            
-            st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
-            
-            if st.button("📋 View All Bookings"):
+            st.markdown("<div style='height: 5px;'></div>", unsafe_allow_html=True)
+            if st.button("🔍 Search Booking"):
+                st.session_state.menu_selection = "🔍 Search & Filter"
+                st.rerun()
+                
+        with col_nc2:
+            if st.button("📋 View Bookings"):
                 st.session_state.menu_selection = "📋 View Bookings"
+                st.rerun()
+            st.markdown("<div style='height: 5px;'></div>", unsafe_allow_html=True)
+            if st.button("❌ Delete Booking"):
+                st.session_state.menu_selection = "❌ Delete Booking"
                 st.rerun()
                 
     with col_bell:
-        st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='height: 18px;'></div>", unsafe_allow_html=True)
         if st.button("🔔", help="Click to View Live Alerts"):
             st.session_state.show_alerts = not st.session_state.get("show_alerts", False)
             st.rerun()
