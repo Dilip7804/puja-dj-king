@@ -8,7 +8,7 @@ st.set_page_config(
     page_title="PUJA DJ KING | Management",
     page_icon="🎧",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
 # --- PREMIUM STYLING ---
@@ -19,7 +19,6 @@ st.markdown("""
         color: #f3f4f6;
     }
     
-    /* Top Header Box Layout */
     .top-header-box {
         display: flex;
         justify-content: space-between;
@@ -72,6 +71,30 @@ st.markdown("""
         color: #000000;
     }
 
+    section[data-testid="stSidebar"] {
+        background-color: #030712;
+        border-right: 1px solid #1f2937;
+        padding-top: 10px;
+    }
+    
+    .stRadio div[role="radiogroup"] {
+        background-color: #111827;
+        padding: 8px;
+        border-radius: 12px;
+        border: 1px solid #374151;
+    }
+    
+    .stRadio label {
+        background-color: #1f2937 !important;
+        color: #f3f4f6 !important;
+        padding: 8px 12px !important;
+        border-radius: 8px !important;
+        margin-bottom: 6px !important;
+        font-weight: 600 !important;
+        border: 1px solid #374151 !important;
+        cursor: pointer;
+    }
+
     .metrics-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -108,13 +131,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- HIDE SIDEBAR COMPLETELY ---
-st.markdown("""
-    <style>
-    [data-testid="stSidebar"] {display: none;}
-    </style>
-""", unsafe_allow_html=True)
-
 # --- LOGIN SYSTEM ---
 def check_login():
     if "authenticated" not in st.session_state:
@@ -123,6 +139,7 @@ def check_login():
     if not st.session_state.authenticated:
         st.markdown("""
             <style>
+            [data-testid="stSidebar"] {display: none;}
             .stApp { background: radial-gradient(circle at center, #1e293b 0%, #020617 100%); }
             </style>
         """, unsafe_allow_html=True)
@@ -176,8 +193,37 @@ def save_data(df):
 
 df = load_data()
 
-# --- TOP HEADER BOX WITH LOGOUT & BELL ---
-col_head1, col_head2, col_head3 = st.columns([3, 1, 1])
+# --- SIDEBAR NAVIGATION ---
+st.sidebar.markdown("### 🎛️ Control Panel")
+
+if "menu_selection" not in st.session_state:
+    st.session_state.menu_selection = "🏠 Home / Dashboard"
+
+if "show_alerts" not in st.session_state:
+    st.session_state.show_alerts = False
+
+options = [
+    "🏠 Home / Dashboard",
+    "➕ New Booking", 
+    "📋 View Bookings", 
+    "📈 Ledger & Payments", 
+    "🔍 Search & Filter", 
+    "❌ Delete Booking"
+]
+
+selected_menu = st.sidebar.radio("Select Option", options, index=options.index(st.session_state.menu_selection), label_visibility="collapsed")
+
+if selected_menu != st.session_state.menu_selection:
+    st.session_state.menu_selection = selected_menu
+    st.rerun()
+
+st.sidebar.markdown("---")
+if st.sidebar.button("🔒 Logout"):
+    st.session_state.authenticated = False
+    st.rerun()
+
+# --- TOP HEADER BOX WITH BELL BUTTON ---
+col_head1, col_head2 = st.columns([5, 1])
 with col_head1:
     st.markdown("""
         <div class="top-header-box" style="margin-bottom: 0px;">
@@ -190,14 +236,8 @@ with col_head1:
 
 with col_head2:
     st.markdown("<div style='height: 4px;'></div>", unsafe_allow_html=True)
-    if st.button("🔔 Alerts", help="Notifications"):
-        st.session_state.show_alerts = not st.session_state.get("show_alerts", False)
-        st.rerun()
-
-with col_head3:
-    st.markdown("<div style='height: 4px;'></div>", unsafe_allow_html=True)
-    if st.button("🔒 Logout"):
-        st.session_state.authenticated = False
+    if st.button("🔔", help="Live Notifications"):
+        st.session_state.show_alerts = not st.session_state.show_alerts
         st.rerun()
 
 # --- SMART ALERTS PANEL ---
@@ -238,40 +278,6 @@ if st.session_state.get("show_alerts", False):
         if not pending_alerts and not upcoming_alerts:
             st.success("✅ Sabhi ka payment clear hai aur koi paas me event nahi hai.")
 
-# --- MOBILE FRIENDLY TABS NAVIGATION ---
-if "active_tab" not in st.session_state:
-    st.session_state.active_tab = "Home"
-
-tab_cols = st.columns(3)
-with tab_cols[0]:
-    if st.button("🏠 Dashboard"):
-        st.session_state.active_tab = "Home"
-        st.rerun()
-with tab_cols[1]:
-    if st.button("➕ New Booking"):
-        st.session_state.active_tab = "New"
-        st.rerun()
-with tab_cols[2]:
-    if st.button("📋 View All"):
-        st.session_state.active_tab = "View"
-        st.rerun()
-
-tab_cols_2 = st.columns(3)
-with tab_cols_2[0]:
-    if st.button("📈 Ledger"):
-        st.session_state.active_tab = "Ledger"
-        st.rerun()
-with tab_cols_2[1]:
-    if st.button("🔍 Search"):
-        st.session_state.active_tab = "Search"
-        st.rerun()
-with tab_cols_2[2]:
-    if st.button("❌ Delete"):
-        st.session_state.active_tab = "Delete"
-        st.rerun()
-
-st.markdown("---")
-
 # --- EQUIPMENT OPTIONS ---
 equipment_options = [
     "JBL Line Array", 
@@ -281,9 +287,9 @@ equipment_options = [
     "Generator Backup"
 ]
 
-# --- ROUTING BASED ON ACTIVE TAB ---
+# --- ROUTING BASED ON MENU SELECTION ---
 
-if st.session_state.active_tab == "Home":
+if st.session_state.menu_selection == "🏠 Home / Dashboard":
     if not df.empty:
         total_bookings = len(df)
         total_revenue = df["Total Amount"].sum()
@@ -295,6 +301,7 @@ if st.session_state.active_tab == "Home":
         total_advance = 0
         total_pending = 0
 
+    st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
     st.markdown(f"""
         <div class="metrics-grid">
             <div class="metric-card">
@@ -316,7 +323,7 @@ if st.session_state.active_tab == "Home":
         </div>
     """, unsafe_allow_html=True)
 
-elif st.session_state.active_tab == "New":
+elif st.session_state.menu_selection == "➕ New Booking":
     st.markdown("### 📝 Nayi Booking Darj Karein")
     with st.form("booking_form", clear_on_submit=True):
         customer_name = st.text_input("👤 Customer Name")
@@ -349,12 +356,12 @@ elif st.session_state.active_tab == "New":
                 df = pd.concat([df, new_row], ignore_index=True)
                 save_data(df)
                 st.success("🎉 Booking Safalpurvak Save Ho Gayi!")
-                st.session_state.active_tab = "Home"
+                st.session_state.menu_selection = "🏠 Home / Dashboard"
                 st.rerun()
             else:
                 st.error("⚠️ Kripya Customer Name aur Mobile Number zaroor bharein!")
 
-elif st.session_state.active_tab == "View":
+elif st.session_state.menu_selection == "📋 View Bookings":
     st.markdown("### 📋 Sabhi Bookings ki List")
     if df.empty:
         st.info("📭 Abhi tak koi booking nahi hai.")
@@ -363,7 +370,7 @@ elif st.session_state.active_tab == "View":
         csv = df.to_csv(index=False).encode('utf-8')
         st.download_button("📥 Download CSV", csv, 'puja_dj_bookings.csv', 'text/csv')
 
-elif st.session_state.active_tab == "Ledger":
+elif st.session_state.menu_selection == "📈 Ledger & Payments":
     st.markdown("### 📈 Payment Update")
     if df.empty:
         st.info("📭 Koi data available nahi hai.")
@@ -398,7 +405,7 @@ elif st.session_state.active_tab == "Ledger":
                     st.success("🎉 Clear Ho Gaya!")
                     st.rerun()
 
-elif st.session_state.active_tab == "Search":
+elif st.session_state.menu_selection == "🔍 Search & Filter":
     st.markdown("### 🔍 Booking Talashein")
     search_query = st.text_input("Mobile Number ya Naam dalein:")
     if search_query:
@@ -411,7 +418,7 @@ elif st.session_state.active_tab == "Search":
         else:
             st.warning("❌ Koi booking nahi mili.")
 
-elif st.session_state.active_tab == "Delete":
+elif st.session_state.menu_selection == "❌ Delete Booking":
     st.markdown("### 🗑️ Booking Delete Karein")
     if df.empty:
         st.info("📭 Koi record nahi hai.")
