@@ -23,23 +23,23 @@ st.markdown("""
     /* Header Card Style */
     .header-card {
         background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-        padding: 20px;
-        border-radius: 16px;
+        padding: 18px;
+        border-radius: 14px;
         border: 1px solid #374151;
         text-align: center;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-        margin-bottom: 20px;
+        margin-bottom: 15px;
     }
     .header-title {
         color: #f59e0b;
-        font-size: 2rem;
+        font-size: 1.8rem;
         font-weight: 800;
         letter-spacing: 1px;
-        margin-bottom: 5px;
+        margin-bottom: 2px;
     }
     .header-subtitle {
         color: #9ca3af;
-        font-size: 0.95rem;
+        font-size: 0.85rem;
         font-weight: 500;
     }
 
@@ -52,7 +52,7 @@ st.markdown("""
     /* Form & Input Fields Container */
     div.stForm {
         background-color: #111827;
-        padding: 20px;
+        padding: 15px;
         border-radius: 14px;
         border: 1px solid #374151;
         box-shadow: 0 4px 15px rgba(0,0,0,0.3);
@@ -111,21 +111,24 @@ st.markdown("""
         transform: translateX(4px);
     }
 
-    /* Metric Cards Styling */
+    /* Compact Metric Cards for Mobile & Desktop */
     div[data-testid="metric-container"] {
         background-color: #111827;
         border: 1px solid #374151;
-        padding: 15px;
-        border-radius: 14px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        padding: 10px 12px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        text-align: center;
     }
     div[data-testid="metric-container"] label {
         color: #9ca3af !important;
         font-weight: 600 !important;
+        font-size: 0.8rem !important;
     }
     div[data-testid="metric-container"] div[data-testid="stMetricValue"] {
         color: #f59e0b !important;
         font-weight: 800 !important;
+        font-size: 1.25rem !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -208,7 +211,7 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# --- PROFESSIONAL BUSINESS METRICS ---
+# --- PROFESSIONAL BUSINESS METRICS (2x2 Grid for Mobile, 4 columns for PC) ---
 if not df.empty:
     total_bookings = len(df)
     total_revenue = df["Total Amount"].sum()
@@ -220,13 +223,20 @@ else:
     total_advance = 0
     total_pending = 0
 
-m1, m2, m3, m4 = st.columns(4)
-m1.metric("📊 Total Bookings", f"{total_bookings}")
-m2.metric("💰 Total Business", f"₹ {total_revenue:,.0f}")
-m3.metric("💵 Advance Received", f"₹ {total_advance:,.0f}")
-m4.metric("⏳ Pending Balance", f"₹ {total_pending:,.0f}")
+# Using 2 rows of 2 columns each so it looks exceptionally neat on mobile screens without stretching vertically
+row1_col1, row1_col2 = st.columns(2)
+with row1_col1:
+    st.metric("📊 Bookings", f"{total_bookings}")
+with row1_col2:
+    st.metric("💰 Business", f"₹ {total_revenue:,.0f}")
 
-st.markdown("<div style='margin-bottom: 15px;'></div>", unsafe_allow_html=True)
+row2_col1, row2_col2 = st.columns(2)
+with row2_col1:
+    st.metric("💵 Advance", f"₹ {total_advance:,.0f}")
+with row2_col2:
+    st.metric("⏳ Balance", f"₹ {total_pending:,.0f}")
+
+st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
 
 # --- SMART ALERTS ---
 if not df.empty:
@@ -252,7 +262,7 @@ if not df.empty:
             pass
 
     if pending_alerts or upcoming_alerts:
-        with st.expander("🔔 **Important Live Alerts & Notifications** (Click to Expand)", expanded=True):
+        with st.expander("🔔 **Important Live Alerts & Notifications** (Click to Expand)", expanded=False):
             cols_alert = st.columns(2)
             with cols_alert[0]:
                 st.markdown("#### 💳 Pending Payments Alert")
@@ -269,7 +279,7 @@ if not df.empty:
                 else:
                     st.info("ℹ️ Aane wale 3 dino me koi event nahi hai.")
 
-st.markdown("<div style='margin-bottom: 15px;'></div>", unsafe_allow_html=True)
+st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
 
 # --- SIDEBAR MENU NAVIGATION ---
 st.sidebar.markdown("### 🎛️ Control Panel")
@@ -431,7 +441,6 @@ elif menu == "🔍 Search & Filter":
         
         if not result_df.empty:
             st.success(f"🎯 Total {len(result_df)} match mile hain:")
-            # Use use_container_width=True with column configuration or display compact subset for perfect fit
             display_cols = ["Customer Name", "Phone", "Event Dates", "Equipment", "Advance Paid", "Total Amount", "Balance Due", "Status"]
             st.dataframe(result_df[display_cols], use_container_width=True)
         else:
