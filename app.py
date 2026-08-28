@@ -11,7 +11,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- PREMIUM STYLING & AUTO-HIDE SIDEBAR SCRIPT ---
+# --- PREMIUM STYLING & MOBILE GRID FIX ---
 st.markdown("""
     <style>
     /* Main Background & Text */
@@ -84,7 +84,6 @@ st.markdown("""
         padding-top: 20px;
     }
     
-    /* Radio Menu Container */
     .stRadio div[role="radiogroup"] {
         background-color: #111827;
         padding: 12px;
@@ -93,7 +92,6 @@ st.markdown("""
         box-shadow: 0 4px 12px rgba(0,0,0,0.4);
     }
     
-    /* Radio Option Cards Style */
     .stRadio label {
         background-color: #1f2937 !important;
         color: #f3f4f6 !important;
@@ -137,6 +135,14 @@ st.markdown("""
         color: #f59e0b;
         font-weight: 800;
         font-size: 1.25rem;
+    }
+    
+    /* Custom 2x2 Navigation Grid Styling for Mobile & Desktop */
+    .nav-grid-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 10px;
     }
     
     /* Footer Styling */
@@ -359,38 +365,36 @@ if st.session_state.menu_selection == "🏠 Home / Dashboard":
         </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("<div style='margin-bottom: 25px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-bottom: 15px;'></div>", unsafe_allow_html=True)
     
-    # --- QUICK NAVIGATION & NOTIFICATION BELL (2x2 Grid + Bell aligned) ---
-    st.markdown("<h3 style='text-align: center;'>⚡ Quick Navigation</h3>", unsafe_allow_html=True)
+    # --- QUICK NAVIGATION & NOTIFICATION BELL (Fixed 2x2 Grid via HTML/CSS Container) ---
+    st.markdown("<h3 style='text-align: center; margin-bottom: 15px;'>⚡ Quick Navigation</h3>", unsafe_allow_html=True)
     
-    col_btn1, col_btn2 = st.columns(2)
-    with col_btn1:
+    # Using columns for 2x2 button layout that strictly respects 2 columns on mobile too
+    col_nav1, col_nav2 = st.columns(2)
+    with col_nav1:
         if st.button("➕ Create Booking"):
             st.session_state.menu_selection = "➕ New Booking"
             st.rerun()
-    with col_btn2:
-        if st.button("📋 View Bookings"):
-            st.session_state.menu_selection = "📋 View Bookings"
-            st.rerun()
-            
-    st.markdown("<div style='height: 5px;'></div>", unsafe_allow_html=True)
-    
-    col_btn3, col_bell = st.columns([1, 1])
-    with col_btn3:
+        st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
         if st.button("🔍 Search Booking"):
             st.session_state.menu_selection = "🔍 Search & Filter"
             st.rerun()
-    with col_bell:
+            
+    with col_nav2:
+        if st.button("📋 View Bookings"):
+            st.session_state.menu_selection = "📋 View Bookings"
+            st.rerun()
+        st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
         if st.button("❌ Delete Booking"):
             st.session_state.menu_selection = "❌ Delete Booking"
             st.rerun()
 
-    st.markdown("<div style='height: 5px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
     
-    # Notification Bell centered below or neatly placed
-    col_bell_center1, col_bell_center2, col_bell_center3 = st.columns([2, 1, 2])
-    with col_bell_center2:
+    # Notification Bell centered neatly below
+    col_bell_c1, col_bell_c2, col_bell_c3 = st.columns([2, 1, 2])
+    with col_bell_c2:
         if st.button("🔔", help="Click to View Live Alerts"):
             st.session_state.show_alerts = not st.session_state.get("show_alerts", False)
             st.rerun()
