@@ -361,21 +361,20 @@ if st.session_state.menu_selection == "🏠 Home / Dashboard":
 
     st.markdown("<div style='margin-bottom: 25px;'></div>", unsafe_allow_html=True)
     
-    # --- CENTERED QUICK NAVIGATION ---
+    # --- PERFECTLY CENTERED QUICK NAVIGATION ---
     st.markdown("<h3 style='text-align: center;'>⚡ Quick Navigation</h3>", unsafe_allow_html=True)
-    st.markdown("<div style='display: flex; justify-content: center;'><div style='width: 100%; max-width: 450px;'>", unsafe_allow_html=True)
     
-    if st.button("➕ Create New Booking"):
-        st.session_state.menu_selection = "➕ New Booking"
-        st.rerun()
-    
-    st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
-    
-    if st.button("📋 View All Bookings"):
-        st.session_state.menu_selection = "📋 View Bookings"
-        st.rerun()
+    col_nc1, col_nc2, col_nc3 = st.columns([1, 2.5, 1])
+    with col_nc2:
+        if st.button("➕ Create New Booking"):
+            st.session_state.menu_selection = "➕ New Booking"
+            st.rerun()
         
-    st.markdown("</div></div>", unsafe_allow_html=True)
+        st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+        
+        if st.button("📋 View All Bookings"):
+            st.session_state.menu_selection = "📋 View Bookings"
+            st.rerun()
 
 # --- 1. NEW BOOKING PAGE ---
 elif st.session_state.menu_selection == "➕ New Booking":
