@@ -20,11 +20,9 @@ st.markdown("""
         color: #f3f4f6;
     }
     
-    /* Top Header Layout (Welcome & Clickable Bell) */
+    /* Top Header Layout (Centered PUJA DJ KING) */
     .top-header-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        text-align: center;
         background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
         padding: 15px 20px;
         border-radius: 14px;
@@ -44,22 +42,6 @@ st.markdown("""
         font-size: 1.6rem;
         font-weight: 800;
         margin: 0;
-    }
-    .bell-btn {
-        background-color: #374151;
-        color: #f59e0b;
-        font-size: 1.2rem;
-        padding: 8px 14px;
-        border-radius: 50%;
-        border: 1px solid #4b5563;
-        cursor: pointer;
-        text-decoration: none;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        transition: all 0.2s;
-    }
-    .bell-btn:hover {
-        background-color: #4b5563;
-        transform: scale(1.05);
     }
 
     /* Section Headers */
@@ -156,6 +138,17 @@ st.markdown("""
         font-weight: 800;
         font-size: 1.25rem;
     }
+    
+    /* Footer Styling */
+    .footer-text {
+        text-align: center;
+        color: #9ca3af;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-top: 30px;
+        margin-bottom: 20px;
+        letter-spacing: 1px;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -251,7 +244,6 @@ selected_menu = st.sidebar.radio("Select Option", options, index=options.index(s
 
 if selected_menu != st.session_state.menu_selection:
     st.session_state.menu_selection = selected_menu
-    # JavaScript code to automatically collapse sidebar on mobile/desktop when a menu item is clicked
     st.markdown("""
         <script>
             const sidebarCollapseBtn = window.parent.document.querySelector('button[kind="header"]');
@@ -265,26 +257,16 @@ if st.sidebar.button("🔒 Logout"):
     st.session_state.authenticated = False
     st.rerun()
 
-# --- TOP HEADER SECTION (Welcome & Clickable Bell Button) ---
-col_h1, col_h2 = st.columns([6, 1])
-with col_h1:
-    st.markdown("""
-        <div class="top-header-container" style="margin-bottom: 0px;">
-            <div>
-                <div class="welcome-text">Welcome to</div>
-                <div class="brand-title">🎧 PUJA DJ KING</div>
-                <div style="color: #9ca3af; font-size: 0.8rem;">Professional Sound System & Event Management</div>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
+# --- TOP HEADER SECTION (Centered Branding) ---
+st.markdown("""
+    <div class="top-header-container">
+        <div class="welcome-text">Welcome to</div>
+        <div class="brand-title">🎧 PUJA DJ KING</div>
+        <div style="color: #9ca3af; font-size: 0.8rem; margin-top: 4px;">Professional Sound System & Event Management</div>
+    </div>
+""", unsafe_allow_html=True)
 
-with col_h2:
-    st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
-    if st.button("🔔", help="Click to View Live Alerts"):
-        st.session_state.show_alerts = not st.session_state.show_alerts
-        st.rerun()
-
-# --- SMART ALERTS (Toggled directly via Bell button) ---
+# --- SMART ALERTS & NOTIFICATIONS ---
 pending_alerts = []
 upcoming_alerts = []
 if not df.empty:
@@ -377,18 +359,23 @@ if st.session_state.menu_selection == "🏠 Home / Dashboard":
         </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("<div style='margin-bottom: 20px;'></div>", unsafe_allow_html=True)
-    st.markdown("### ⚡ Quick Navigation")
+    st.markdown("<div style='margin-bottom: 25px;'></div>", unsafe_allow_html=True)
     
-    col_q1, col_q2 = st.columns(2)
-    with col_q1:
-        if st.button("➕ Create New Booking"):
-            st.session_state.menu_selection = "➕ New Booking"
-            st.rerun()
-    with col_q2:
-        if st.button("📋 View All Bookings"):
-            st.session_state.menu_selection = "📋 View Bookings"
-            st.rerun()
+    # --- CENTERED QUICK NAVIGATION ---
+    st.markdown("<h3 style='text-align: center;'>⚡ Quick Navigation</h3>", unsafe_allow_html=True)
+    st.markdown("<div style='display: flex; justify-content: center;'><div style='width: 100%; max-width: 450px;'>", unsafe_allow_html=True)
+    
+    if st.button("➕ Create New Booking"):
+        st.session_state.menu_selection = "➕ New Booking"
+        st.rerun()
+    
+    st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+    
+    if st.button("📋 View All Bookings"):
+        st.session_state.menu_selection = "📋 View Bookings"
+        st.rerun()
+        
+    st.markdown("</div></div>", unsafe_allow_html=True)
 
 # --- 1. NEW BOOKING PAGE ---
 elif st.session_state.menu_selection == "➕ New Booking":
@@ -552,3 +539,14 @@ elif st.session_state.menu_selection == "❌ Delete Booking":
                 save_data(df)
                 st.success(f"🗑️ Row Index {row_idx} ko hata diya gaya hai!")
                 st.rerun()
+
+# --- BOTTOM NOTIFICATION BELL & FOOTER ---
+st.markdown("---")
+col_f1, col_f2 = st.columns([5, 1])
+
+with col_f2:
+    if st.button("🔔", help="Click to View Live Alerts"):
+        st.session_state.show_alerts = not st.session_state.get("show_alerts", False)
+        st.rerun()
+
+st.markdown('<div class="footer-text">Created by Dilip Singh</div>', unsafe_allow_html=True)
