@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import os
-from datetime import datetime
+from datetime import datetime, date
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
@@ -23,23 +23,23 @@ st.markdown("""
     /* Header Card Style */
     .header-card {
         background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-        padding: 25px;
+        padding: 20px;
         border-radius: 16px;
         border: 1px solid #374151;
         text-align: center;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-        margin-bottom: 25px;
+        margin-bottom: 20px;
     }
     .header-title {
         color: #f59e0b;
-        font-size: 2.2rem;
+        font-size: 2rem;
         font-weight: 800;
         letter-spacing: 1px;
         margin-bottom: 5px;
     }
     .header-subtitle {
         color: #9ca3af;
-        font-size: 1rem;
+        font-size: 0.95rem;
         font-weight: 500;
     }
 
@@ -76,32 +76,56 @@ st.markdown("""
         color: #000000;
     }
 
-    /* Sidebar Styling & Professional Menu Look */
+    /* SIDEBAR & PREMIUM MENU STYLING */
     section[data-testid="stSidebar"] {
         background-color: #030712;
         border-right: 1px solid #1f2937;
         padding-top: 20px;
     }
-    section[data-testid="stSidebar"] .stMarkdown {
-        color: #e5e7eb;
-    }
     
-    /* Custom Sidebar Radio Menu Styling */
+    /* Radio Menu Container */
     .stRadio div[role="radiogroup"] {
         background-color: #111827;
-        padding: 10px;
-        border-radius: 12px;
+        padding: 12px;
+        border-radius: 14px;
         border: 1px solid #374151;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
     }
+    
+    /* Radio Option Cards Style */
     .stRadio label {
-        font-weight: 600 !important;
+        background-color: #1f2937 !important;
         color: #f3f4f6 !important;
-        padding: 5px 0;
+        padding: 10px 15px !important;
+        border-radius: 10px !important;
+        margin-bottom: 8px !important;
+        font-weight: 600 !important;
+        border: 1px solid #374151 !important;
+        transition: all 0.3s ease-in-out !important;
+        cursor: pointer;
+    }
+    .stRadio label:hover {
+        background: linear-gradient(135deg, #374151, #4b5563) !important;
+        border-color: #f59e0b !important;
+        color: #f59e0b !important;
+        transform: translateX(4px);
     }
 
-    /* Dataframe Table Look */
-    dataframe, table {
-        border-radius: 10px !important;
+    /* Metric Cards Styling */
+    div[data-testid="metric-container"] {
+        background-color: #111827;
+        border: 1px solid #374151;
+        padding: 15px;
+        border-radius: 14px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    div[data-testid="metric-container"] label {
+        color: #9ca3af !important;
+        font-weight: 600 !important;
+    }
+    div[data-testid="metric-container"] div[data-testid="stMetricValue"] {
+        color: #f59e0b !important;
+        font-weight: 800 !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -113,23 +137,35 @@ def check_login():
 
     if not st.session_state.authenticated:
         st.markdown("""
-            <div style="max-width: 420px; margin: 50px auto; background: linear-gradient(145deg, #111827, #1f2937); padding: 35px; border-radius: 20px; border: 1px solid #374151; text-align: center; box-shadow: 0 15px 30px rgba(0,0,0,0.7);">
-                <div style="font-size: 3.5rem; margin-bottom: 10px;">🎛️🔊</div>
-                <h2 style="color: #f59e0b; margin-bottom: 5px; font-weight: 800;">PUJA DJ KING</h2>
-                <p style="color: #9ca3af; font-size: 0.95rem; margin-bottom: 0px; letter-spacing: 0.5px;">Professional Sound & Event Portal</p>
-            </div>
+            <style>
+            [data-testid="stSidebar"] {display: none;}
+            .stApp { background: radial-gradient(circle at center, #1e293b 0%, #020617 100%); }
+            </style>
         """, unsafe_allow_html=True)
         
-        col1, col2, col3 = st.columns([1, 2, 1])
+        st.markdown("<div style='height: 12vh;'></div>", unsafe_allow_html=True)
+        
+        col1, col2, col3 = st.columns([1, 1.2, 1])
         with col2:
-            # Placeholder bilkul saaf kar diya hai taaki 1234 na dikhe
-            pin = st.text_input("🔑 Enter Security PIN", type="password", placeholder="")
-            if st.button("🔐 Login to Dashboard"):
-                if pin == "1234":
-                    st.session_state.authenticated = True
-                    st.rerun()
-                else:
-                    st.error("❌ Galat PIN! Kripya sahi PIN dalein.")
+            st.markdown("""
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <div style="font-size: 4rem; line-height: 1;">🎧</div>
+                    <h1 style="color: #f59e0b; font-weight: 900; font-size: 2.8rem; margin-top: 10px; margin-bottom: 0px;">PUJA DJ KING</h1>
+                    <p style="color: #94a3b8; font-size: 1.1rem; letter-spacing: 2px; text-transform: uppercase;">Secure Portal</p>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            with st.form("login_form"):
+                st.markdown("<p style='color: #cbd5e1; font-weight: 600; margin-bottom: 5px;'>Security PIN Required</p>", unsafe_allow_html=True)
+                pin = st.text_input("PIN", type="password", placeholder="", label_visibility="collapsed")
+                st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+                
+                if st.form_submit_button("Secure Login 🚀"):
+                    if pin == "1234":
+                        st.session_state.authenticated = True
+                        st.rerun()
+                    else:
+                        st.error("❌ Galat PIN! Kripya dobara try karein.")
         return False
     return True
 
@@ -141,10 +177,22 @@ CSV_FILE = "puja_dj_bookings.csv"
 
 def load_data():
     if os.path.exists(CSV_FILE):
-        return pd.read_csv(CSV_FILE)
+        df = pd.read_csv(CSV_FILE)
+        expected_cols = ["Customer Name", "Phone", "Event Dates", "Equipment", "Advance Paid", "Total Amount", "Balance Due", "Status", "Remarks"]
+        for col in expected_cols:
+            if col not in df.columns:
+                df[col] = "None"
+        
+        df["Total Amount"] = pd.to_numeric(df["Total Amount"], errors='coerce').fillna(0)
+        df["Advance Paid"] = pd.to_numeric(df["Advance Paid"], errors='coerce').fillna(0)
+        df["Balance Due"] = pd.to_numeric(df["Balance Due"], errors='coerce').fillna(0)
+        df["Status"] = df["Status"].astype(str)
+        df["Customer Name"] = df["Customer Name"].astype(str)
+        df["Phone"] = df["Phone"].astype(str)
+        return df
     else:
         return pd.DataFrame(columns=[
-            "Customer Name", "Phone", "Event Dates", "Equipment", "Advance Paid", "Total Amount", "Remarks"
+            "Customer Name", "Phone", "Event Dates", "Equipment", "Advance Paid", "Total Amount", "Balance Due", "Status", "Remarks"
         ])
 
 def save_data(df):
@@ -160,9 +208,78 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
+# --- PROFESSIONAL BUSINESS METRICS ---
+if not df.empty:
+    total_bookings = len(df)
+    total_revenue = df["Total Amount"].sum()
+    total_advance = df["Advance Paid"].sum()
+    total_pending = df["Balance Due"].sum()
+else:
+    total_bookings = 0
+    total_revenue = 0
+    total_advance = 0
+    total_pending = 0
+
+m1, m2, m3, m4 = st.columns(4)
+m1.metric("📊 Total Bookings", f"{total_bookings}")
+m2.metric("💰 Total Business", f"₹ {total_revenue:,.0f}")
+m3.metric("💵 Advance Received", f"₹ {total_advance:,.0f}")
+m4.metric("⏳ Pending Balance", f"₹ {total_pending:,.0f}")
+
+st.markdown("<div style='margin-bottom: 15px;'></div>", unsafe_allow_html=True)
+
+# --- SMART ALERTS ---
+if not df.empty:
+    today_date = date.today()
+    pending_alerts = []
+    upcoming_alerts = []
+    
+    for idx, row in df.iterrows():
+        name = str(row["Customer Name"])
+        phone = str(row["Phone"])
+        balance = float(row["Balance Due"])
+        event_date_str = str(row["Event Dates"])
+        
+        if balance > 0:
+            pending_alerts.append(f"⚠️ **{name}** ({phone}) ka **₹ {balance:,.0f}** balance baaki hai!")
+            
+        try:
+            ev_date = datetime.strptime(event_date_str.strip(), "%Y-%m-%d").date()
+            diff_days = (ev_date - today_date).days
+            if 0 <= diff_days <= 3:
+                upcoming_alerts.append(f"🚨 **{name}** ka event bilkul najdeek hai! Date: **{event_date_str}**")
+        except:
+            pass
+
+    if pending_alerts or upcoming_alerts:
+        with st.expander("🔔 **Important Live Alerts & Notifications** (Click to Expand)", expanded=True):
+            cols_alert = st.columns(2)
+            with cols_alert[0]:
+                st.markdown("#### 💳 Pending Payments Alert")
+                if pending_alerts:
+                    for alert in pending_alerts:
+                        st.error(alert)
+                else:
+                    st.success("✅ Sabhi ka payment clear hai!")
+            with cols_alert[1]:
+                st.markdown("#### 📅 Upcoming Events Alert")
+                if upcoming_alerts:
+                    for alert in upcoming_alerts:
+                        st.warning(alert)
+                else:
+                    st.info("ℹ️ Aane wale 3 dino me koi event nahi hai.")
+
+st.markdown("<div style='margin-bottom: 15px;'></div>", unsafe_allow_html=True)
+
 # --- SIDEBAR MENU NAVIGATION ---
 st.sidebar.markdown("### 🎛️ Control Panel")
-menu = st.sidebar.radio("Select Option", ["➕ New Booking", "📋 View Bookings", "🔍 Search & Filter", "❌ Delete Booking"])
+menu = st.sidebar.radio("Select Option", [
+    "➕ New Booking", 
+    "📋 View Bookings", 
+    "📈 Ledger & Payments", 
+    "🔍 Search & Filter", 
+    "❌ Delete Booking"
+], label_visibility="collapsed")
 
 st.sidebar.markdown("---")
 if st.sidebar.button("🔒 Logout"):
@@ -171,11 +288,11 @@ if st.sidebar.button("🔒 Logout"):
 
 # Equipment Options
 equipment_options = [
-    "JBL Line Array Setup", 
-    "Dual Bass Heavy Setup", 
-    "Double Top Box Setup", 
-    "Full Sound & Light Setup", 
-    "Generator & Power Backup"
+    "JBL Line Array", 
+    "Dual Bass Heavy", 
+    "Double Top Box", 
+    "Full Sound & Light", 
+    "Generator Backup"
 ]
 
 # --- 1. NEW BOOKING PAGE ---
@@ -204,19 +321,25 @@ if menu == "➕ New Booking":
                 eq_str = ", ".join(selected_equipment)
                 date_str = str(event_dates)
                 
+                balance_due = float(total_amount) - float(advance_paid)
+                status = "Paid" if balance_due <= 0 else "Pending"
+                
                 new_row = pd.DataFrame({
-                    "Customer Name": [customer_name],
-                    "Phone": [phone],
+                    "Customer Name": [str(customer_name)],
+                    "Phone": [str(phone)],
                     "Event Dates": [date_str],
                     "Equipment": [eq_str],
-                    "Advance Paid": [advance_paid],
-                    "Total Amount": [total_amount],
-                    "Remarks": [remarks]
+                    "Advance Paid": [float(advance_paid)],
+                    "Total Amount": [float(total_amount)],
+                    "Balance Due": [float(balance_due)],
+                    "Status": [str(status)],
+                    "Remarks": [str(remarks)]
                 })
                 
                 df = pd.concat([df, new_row], ignore_index=True)
                 save_data(df)
                 st.success("🎉 Booking Safalpurvak Save Ho Gayi!")
+                st.rerun()
             else:
                 st.error("⚠️ Kripya Customer Name aur Mobile Number zaroor bharein!")
 
@@ -237,7 +360,64 @@ elif menu == "📋 View Bookings":
             mime='text/csv',
         )
 
-# --- 3. SEARCH & FILTER PAGE ---
+# --- 3. LEDGER & PAYMENTS PAGE ---
+elif menu == "📈 Ledger & Payments":
+    st.markdown("### 📈 Customer Ledger & Payment Update")
+    
+    if df.empty:
+        st.info("📭 Ledger ke liye koi data available nahi hai.")
+    else:
+        st.dataframe(df[["Customer Name", "Phone", "Event Dates", "Total Amount", "Advance Paid", "Balance Due", "Status"]], use_container_width=True)
+        
+        st.markdown("---")
+        st.markdown("### 💳 Update Payment / Clear Due Amount")
+        
+        customer_list = df.index.astype(str) + " - " + df["Customer Name"].astype(str) + " (" + df["Phone"].astype(str) + ")"
+        selected_row_label = st.selectbox("Kiska payment update karna hai select karein:", customer_list)
+        
+        if selected_row_label:
+            idx = int(selected_row_label.split(" - ")[0])
+            curr_row = df.loc[idx]
+            
+            st.info(f"👤 Customer: **{curr_row['Customer Name']}** | 💰 Total: ₹ {float(curr_row['Total Amount']):,.0f} | 💵 Already Paid: ₹ {float(curr_row['Advance Paid']):,.0f} | ⏳ Current Balance Due: ₹ {float(curr_row['Balance Due']):,.0f}")
+            
+            col_u1, col_u2 = st.columns(2)
+            with col_u1:
+                additional_pay = st.number_input("💵 Kitna naya payment mila hai? (Enter Amount)", min_value=0, step=500, key="add_pay_input")
+            
+            col_btn1, col_btn2 = st.columns(2)
+            with col_btn1:
+                if st.button("📥 Update Partial Payment"):
+                    if additional_pay > 0:
+                        df.loc[idx, "Advance Paid"] = float(df.loc[idx, "Advance Paid"]) + float(additional_pay)
+                        df.loc[idx, "Balance Due"] = float(df.loc[idx, "Total Amount"]) - float(df.loc[idx, "Advance Paid"])
+                        if float(df.loc[idx, "Balance Due"]) <= 0:
+                            df.loc[idx, "Balance Due"] = 0.0
+                            df.loc[idx, "Status"] = "Paid"
+                        else:
+                            df.loc[idx, "Status"] = "Pending"
+                        save_data(df)
+                        st.success("✅ Payment Safalpurvak Update Ho Gaya!")
+                        st.rerun()
+                    else:
+                        st.warning("⚠️ Kripya sahi amount enter karein.")
+            
+            with col_btn2:
+                if st.button("✅ Mark as Fully Paid (Clear All Due)"):
+                    df.loc[idx, "Advance Paid"] = float(df.loc[idx, "Total Amount"])
+                    df.loc[idx, "Balance Due"] = 0.0
+                    df.loc[idx, "Status"] = "Paid"
+                    save_data(df)
+                    st.success("🎉 Payment Poori Tarah Clear (Paid) Ho Gaya!")
+                    st.rerun()
+
+        st.markdown("---")
+        col_l1, col_l2, col_l3 = st.columns(3)
+        col_l1.info(f"📋 Total Accounts: **{len(df)}**")
+        col_l2.warning(f"⏳ Total Balance Due in Market: **₹ {df['Balance Due'].sum():,.0f}**")
+        col_l3.success(f"✅ Total Collected Amount: **₹ {df['Advance Paid'].sum():,.0f}**")
+
+# --- 4. SEARCH & FILTER PAGE ---
 elif menu == "🔍 Search & Filter":
     st.markdown("### 🔍 Booking Talashein (Search by Mobile / Name)")
     
@@ -251,20 +431,23 @@ elif menu == "🔍 Search & Filter":
         
         if not result_df.empty:
             st.success(f"🎯 Total {len(result_df)} match mile hain:")
-            st.dataframe(result_df, use_container_width=True)
+            # Use use_container_width=True with column configuration or display compact subset for perfect fit
+            display_cols = ["Customer Name", "Phone", "Event Dates", "Equipment", "Advance Paid", "Total Amount", "Balance Due", "Status"]
+            st.dataframe(result_df[display_cols], use_container_width=True)
         else:
             st.warning("❌ Is naam ya number se koi booking nahi mili.")
     else:
         st.info("👆 Upar search box me kisi customer ka mobile number ya naam type karein.")
 
-# --- 4. DELETE BOOKING PAGE ---
+# --- 5. DELETE BOOKING PAGE ---
 elif menu == "❌ Delete Booking":
     st.markdown("### 🗑️ Booking Delete Karein")
     
     if df.empty:
         st.info("📭 Delete karne ke liye koi record nahi hai.")
     else:
-        st.dataframe(df, use_container_width=True)
+        display_cols = ["Customer Name", "Phone", "Event Dates", "Advance Paid", "Total Amount", "Balance Due", "Status"]
+        st.dataframe(df[display_cols], use_container_width=True)
         
         row_idx = st.number_input("Kahin galti ho gayi? Upar table se Row Index number dalein jise delete karna hai:", min_value=0, max_value=max(0, len(df)-1), step=1)
         
