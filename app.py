@@ -11,7 +11,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- PREMIUM STYLING & AUTO-HIDE SCRIPT ---
+# --- PREMIUM STYLING ---
 st.markdown("""
     <style>
     .stApp {
@@ -19,7 +19,7 @@ st.markdown("""
         color: #f3f4f6;
     }
     
-    /* Top Header Box layout with Integrated Bell */
+    /* Top Header Box Layout */
     .top-header-box {
         display: flex;
         justify-content: space-between;
@@ -126,11 +126,11 @@ st.markdown("""
     
     .footer-text {
         text-align: center;
-        color: #9ca3af;
-        font-size: 0.9rem;
-        margin-top: 30px;
-        margin-bottom: 15px;
-        font-weight: 700;
+        color: #f3f4f6;
+        font-size: 1rem;
+        margin-top: 35px;
+        margin-bottom: 20px;
+        font-weight: 800;
         letter-spacing: 0.5px;
     }
     </style>
@@ -220,15 +220,6 @@ selected_menu = st.sidebar.radio("Select Option", options, index=options.index(s
 
 if selected_menu != st.session_state.menu_selection:
     st.session_state.menu_selection = selected_menu
-    st.markdown("""
-        <script>
-            const host = window.parent.document;
-            const sidebarBtn = host.querySelector('button[kind="header"]');
-            if (sidebarBtn && host.querySelector('section[data-testid="stSidebar"][aria-expanded="true"]')) {
-                sidebarBtn.click();
-            }
-        </script>
-    """, unsafe_allow_html=True)
     st.rerun()
 
 st.sidebar.markdown("---")
@@ -250,7 +241,6 @@ with col_head1:
     """, unsafe_allow_html=True)
 
 with col_head2:
-    # Placing the bell button neatly aligned inside the header block via vertical spacing
     st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
     if st.button("🔔", help="Live Notifications"):
         st.session_state.show_alerts = not st.session_state.show_alerts
@@ -349,7 +339,7 @@ if st.session_state.menu_selection == "🏠 Home / Dashboard":
     st.markdown("<div style='margin-bottom: 15px;'></div>", unsafe_allow_html=True)
     st.markdown("### ⚡ Quick Navigation")
     
-    # Quick Navigation Buttons Side-by-Side (Strictly side-by-side in same columns line)
+    # Quick Navigation Buttons Side-by-Side (Strictly Side-by-Side in columns)
     col_q1, col_q2 = st.columns(2)
     with col_q1:
         if st.button("➕ Create New Booking"):
