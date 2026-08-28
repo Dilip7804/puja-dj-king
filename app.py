@@ -111,24 +111,31 @@ st.markdown("""
         transform: translateX(4px);
     }
 
-    /* Compact Metric Cards for Mobile & Desktop */
-    div[data-testid="metric-container"] {
+    /* Custom 2x2 Metric Cards Grid Styling */
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    .metric-card {
         background-color: #111827;
         border: 1px solid #374151;
-        padding: 10px 12px;
+        padding: 12px;
         border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         text-align: center;
     }
-    div[data-testid="metric-container"] label {
-        color: #9ca3af !important;
-        font-weight: 600 !important;
-        font-size: 0.8rem !important;
+    .metric-title {
+        color: #9ca3af;
+        font-weight: 600;
+        font-size: 0.8rem;
+        margin-bottom: 4px;
     }
-    div[data-testid="metric-container"] div[data-testid="stMetricValue"] {
-        color: #f59e0b !important;
-        font-weight: 800 !important;
-        font-size: 1.25rem !important;
+    .metric-value {
+        color: #f59e0b;
+        font-weight: 800;
+        font-size: 1.25rem;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -211,7 +218,7 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# --- PROFESSIONAL BUSINESS METRICS (2x2 Grid for Mobile, 4 columns for PC) ---
+# --- PROFESSIONAL BUSINESS METRICS (Guaranteed 2x2 Grid on Mobile & PC) ---
 if not df.empty:
     total_bookings = len(df)
     total_revenue = df["Total Amount"].sum()
@@ -223,18 +230,26 @@ else:
     total_advance = 0
     total_pending = 0
 
-# Using 2 rows of 2 columns each so it looks exceptionally neat on mobile screens without stretching vertically
-row1_col1, row1_col2 = st.columns(2)
-with row1_col1:
-    st.metric("📊 Bookings", f"{total_bookings}")
-with row1_col2:
-    st.metric("💰 Business", f"₹ {total_revenue:,.0f}")
-
-row2_col1, row2_col2 = st.columns(2)
-with row2_col1:
-    st.metric("💵 Advance", f"₹ {total_advance:,.0f}")
-with row2_col2:
-    st.metric("⏳ Balance", f"₹ {total_pending:,.0f}")
+st.markdown(f"""
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-title">📊 Total Bookings</div>
+            <div class="metric-value">{total_bookings}</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-title">💰 Total Business</div>
+            <div class="metric-value">₹ {total_revenue:,.0f}</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-title">💵 Advance Received</div>
+            <div class="metric-value">₹ {total_advance:,.0f}</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-title">⏳ Pending Balance</div>
+            <div class="metric-value">₹ {total_pending:,.0f}</div>
+        </div>
+    </div>
+""", unsafe_allow_html=True)
 
 st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
 
