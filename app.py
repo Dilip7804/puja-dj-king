@@ -72,30 +72,6 @@ st.markdown("""
         color: #000000;
     }
 
-    section[data-testid="stSidebar"] {
-        background-color: #030712;
-        border-right: 1px solid #1f2937;
-        padding-top: 10px;
-    }
-    
-    .stRadio div[role="radiogroup"] {
-        background-color: #111827;
-        padding: 8px;
-        border-radius: 12px;
-        border: 1px solid #374151;
-    }
-    
-    .stRadio label {
-        background-color: #1f2937 !important;
-        color: #f3f4f6 !important;
-        padding: 8px 12px !important;
-        border-radius: 8px !important;
-        margin-bottom: 6px !important;
-        font-weight: 600 !important;
-        border: 1px solid #374151 !important;
-        cursor: pointer;
-    }
-
     .metrics-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -132,6 +108,13 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# --- HIDE SIDEBAR COMPLETELY ---
+st.markdown("""
+    <style>
+    [data-testid="stSidebar"] {display: none;}
+    </style>
+""", unsafe_allow_html=True)
+
 # --- LOGIN SYSTEM ---
 def check_login():
     if "authenticated" not in st.session_state:
@@ -140,7 +123,6 @@ def check_login():
     if not st.session_state.authenticated:
         st.markdown("""
             <style>
-            [data-testid="stSidebar"] {display: none;}
             .stApp { background: radial-gradient(circle at center, #1e293b 0%, #020617 100%); }
             </style>
         """, unsafe_allow_html=True)
@@ -194,42 +176,13 @@ def save_data(df):
 
 df = load_data()
 
-# --- SIDEBAR NAVIGATION ---
-st.sidebar.markdown("### 🎛️ Control Panel")
-
-if "menu_selection" not in st.session_state:
-    st.session_state.menu_selection = "🏠 Home / Dashboard"
-
-if "show_alerts" not in st.session_state:
-    st.session_state.show_alerts = False
-
-options = [
-    "🏠 Home / Dashboard",
-    "➕ New Booking", 
-    "📋 View Bookings", 
-    "📈 Ledger & Payments", 
-    "🔍 Search & Filter", 
-    "❌ Delete Booking"
-]
-
-selected_menu = st.sidebar.radio("Select Option", options, index=options.index(st.session_state.menu_selection), label_visibility="collapsed")
-
-if selected_menu != st.session_state.menu_selection:
-    st.session_state.menu_selection = selected_menu
-    st.rerun()
-
-st.sidebar.markdown("---")
-if st.sidebar.button("🔒 Logout"):
-    st.session_state.authenticated = False
-    st.rerun()
-
-# --- TOP HEADER BOX WITH INTEGRATED BELL BUTTON ---
-col_head1, col_head2 = st.columns([5, 1])
+# --- TOP HEADER BOX WITH LOGOUT & BELL ---
+col_head1, col_head2, col_head3 = st.columns([3, 1, 1])
 with col_head1:
     st.markdown("""
         <div class="top-header-box" style="margin-bottom: 0px;">
             <div>
-                <div class="welcome-text">Welcome to</div>
+                <div class="welcome-text">Welcome</div>
                 <div class="brand-title">🎧 PUJA DJ KING</div>
             </div>
         </div>
@@ -237,8 +190,14 @@ with col_head1:
 
 with col_head2:
     st.markdown("<div style='height: 4px;'></div>", unsafe_allow_html=True)
-    if st.button("🔔", help="Live Notifications"):
-        st.session_state.show_alerts = not st.session_state.show_alerts
+    if st.button("🔔 Alerts", help="Notifications"):
+        st.session_state.show_alerts = not st.session_state.get("show_alerts", False)
+        st.rerun()
+
+with col_head3:
+    st.markdown("<div style='height: 4px;'></div>", unsafe_allow_html=True)
+    if st.button("🔒 Logout"):
+        st.session_state.authenticated = False
         st.rerun()
 
 # --- SMART ALERTS PANEL ---
@@ -270,7 +229,6 @@ if st.session_state.get("show_alerts", False):
                 <h4 style="color: #f59e0b; margin-top: 0; font-size: 0.9rem;">🔔 Live Notifications & Alerts</h4>
             </div>
         """, unsafe_allow_html=True)
-        cols_alert = st.columns(1)
         if pending_alerts:
             for alert in pending_alerts[:3]:
                 st.error(alert)
@@ -279,6 +237,40 @@ if st.session_state.get("show_alerts", False):
                 st.warning(alert)
         if not pending_alerts and not upcoming_alerts:
             st.success("✅ Sabhi ka payment clear hai aur koi paas me event nahi hai.")
+
+# --- MOBILE FRIENDLY TABS NAVIGATION ---
+if "active_tab" not in st.session_state:
+    st.session_state.active_tab = "Home"
+
+tab_cols = st.columns(3)
+with tab_cols[0]:
+    if st.button("🏠 Dashboard"):
+        st.session_state.active_tab = "Home"
+        st.rerun()
+with tab_cols[1]:
+    if st.button("➕ New Booking"):
+        st.session_state.active_tab = "New"
+        st.rerun()
+with tab_cols[2]:
+    if st.button("📋 View All"):
+        st.session_state.active_tab = "View"
+        st.rerun()
+
+tab_cols_2 = st.columns(3)
+with tab_cols_2[0]:
+    if st.button("📈 Ledger"):
+        st.session_state.active_tab = "Ledger"
+        st.rerun()
+with tab_cols_2[1]:
+    if st.button("🔍 Search"):
+        st.session_state.active_tab = "Search"
+        st.rerun()
+with tab_cols_2[2]:
+    if st.button("❌ Delete"):
+        st.session_state.active_tab = "Delete"
+        st.rerun()
+
+st.markdown("---")
 
 # --- EQUIPMENT OPTIONS ---
 equipment_options = [
@@ -289,9 +281,9 @@ equipment_options = [
     "Generator Backup"
 ]
 
-# --- ROUTING BASED ON MENU SELECTION ---
+# --- ROUTING BASED ON ACTIVE TAB ---
 
-if st.session_state.menu_selection == "🏠 Home / Dashboard":
+if st.session_state.active_tab == "Home":
     if not df.empty:
         total_bookings = len(df)
         total_revenue = df["Total Amount"].sum()
@@ -303,7 +295,6 @@ if st.session_state.menu_selection == "🏠 Home / Dashboard":
         total_advance = 0
         total_pending = 0
 
-    st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
     st.markdown(f"""
         <div class="metrics-grid">
             <div class="metric-card">
@@ -325,20 +316,7 @@ if st.session_state.menu_selection == "🏠 Home / Dashboard":
         </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
-    st.markdown("### ⚡ Quick Navigation")
-    
-    col_q1, col_q2 = st.columns(2)
-    with col_q1:
-        if st.button("➕ New Booking"):
-            st.session_state.menu_selection = "➕ New Booking"
-            st.rerun()
-    with col_q2:
-        if st.button("📋 View Bookings"):
-            st.session_state.menu_selection = "📋 View Bookings"
-            st.rerun()
-
-elif st.session_state.menu_selection == "➕ New Booking":
+elif st.session_state.active_tab == "New":
     st.markdown("### 📝 Nayi Booking Darj Karein")
     with st.form("booking_form", clear_on_submit=True):
         customer_name = st.text_input("👤 Customer Name")
@@ -371,12 +349,12 @@ elif st.session_state.menu_selection == "➕ New Booking":
                 df = pd.concat([df, new_row], ignore_index=True)
                 save_data(df)
                 st.success("🎉 Booking Safalpurvak Save Ho Gayi!")
-                st.session_state.menu_selection = "🏠 Home / Dashboard"
+                st.session_state.active_tab = "Home"
                 st.rerun()
             else:
                 st.error("⚠️ Kripya Customer Name aur Mobile Number zaroor bharein!")
 
-elif st.session_state.menu_selection == "📋 View Bookings":
+elif st.session_state.active_tab == "View":
     st.markdown("### 📋 Sabhi Bookings ki List")
     if df.empty:
         st.info("📭 Abhi tak koi booking nahi hai.")
@@ -385,7 +363,7 @@ elif st.session_state.menu_selection == "📋 View Bookings":
         csv = df.to_csv(index=False).encode('utf-8')
         st.download_button("📥 Download CSV", csv, 'puja_dj_bookings.csv', 'text/csv')
 
-elif st.session_state.menu_selection == "📈 Ledger & Payments":
+elif st.session_state.active_tab == "Ledger":
     st.markdown("### 📈 Payment Update")
     if df.empty:
         st.info("📭 Koi data available nahi hai.")
@@ -420,7 +398,7 @@ elif st.session_state.menu_selection == "📈 Ledger & Payments":
                     st.success("🎉 Clear Ho Gaya!")
                     st.rerun()
 
-elif st.session_state.menu_selection == "🔍 Search & Filter":
+elif st.session_state.active_tab == "Search":
     st.markdown("### 🔍 Booking Talashein")
     search_query = st.text_input("Mobile Number ya Naam dalein:")
     if search_query:
@@ -433,7 +411,7 @@ elif st.session_state.menu_selection == "🔍 Search & Filter":
         else:
             st.warning("❌ Koi booking nahi mili.")
 
-elif st.session_state.menu_selection == "❌ Delete Booking":
+elif st.session_state.active_tab == "Delete":
     st.markdown("### 🗑️ Booking Delete Karein")
     if df.empty:
         st.info("📭 Koi record nahi hai.")
