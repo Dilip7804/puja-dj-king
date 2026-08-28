@@ -361,10 +361,10 @@ if st.session_state.menu_selection == "🏠 Home / Dashboard":
 
     st.markdown("<div style='margin-bottom: 25px;'></div>", unsafe_allow_html=True)
     
-    # --- PERFECTLY CENTERED QUICK NAVIGATION ---
+    # --- QUICK NAVIGATION & NOTIFICATION BELL (Same Line Layout) ---
     st.markdown("<h3 style='text-align: center;'>⚡ Quick Navigation</h3>", unsafe_allow_html=True)
     
-    col_nc1, col_nc2, col_nc3 = st.columns([1, 2.5, 1])
+    col_nc1, col_nc2, col_nc3 = st.columns([1, 2.5, 0.8])
     with col_nc2:
         if st.button("➕ Create New Booking"):
             st.session_state.menu_selection = "➕ New Booking"
@@ -374,6 +374,12 @@ if st.session_state.menu_selection == "🏠 Home / Dashboard":
         
         if st.button("📋 View All Bookings"):
             st.session_state.menu_selection = "📋 View Bookings"
+            st.rerun()
+            
+    with col_nc3:
+        st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
+        if st.button("🔔", help="Click to View Live Alerts"):
+            st.session_state.show_alerts = not st.session_state.get("show_alerts", False)
             st.rerun()
 
 # --- 1. NEW BOOKING PAGE ---
@@ -539,13 +545,6 @@ elif st.session_state.menu_selection == "❌ Delete Booking":
                 st.success(f"🗑️ Row Index {row_idx} ko hata diya gaya hai!")
                 st.rerun()
 
-# --- BOTTOM NOTIFICATION BELL & FOOTER ---
+# --- FOOTER ---
 st.markdown("---")
-col_f1, col_f2 = st.columns([5, 1])
-
-with col_f2:
-    if st.button("🔔", help="Click to View Live Alerts"):
-        st.session_state.show_alerts = not st.session_state.get("show_alerts", False)
-        st.rerun()
-
 st.markdown('<div class="footer-text">Created by Dilip Singh</div>', unsafe_allow_html=True)
