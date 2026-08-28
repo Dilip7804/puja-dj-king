@@ -11,7 +11,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- PREMIUM STYLING & FORCED MOBILE 2x2 GRID ---
+# --- PREMIUM STYLING & AUTO-HIDE SIDEBAR SCRIPT ---
 st.markdown("""
     <style>
     /* Main Background & Text */
@@ -66,7 +66,7 @@ st.markdown("""
         font-weight: 700;
         border-radius: 10px;
         border: none;
-        padding: 0.6rem 0.5rem;
+        padding: 0.6rem 1.2rem;
         width: 100%;
         box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
         transition: all 0.3s ease;
@@ -84,6 +84,7 @@ st.markdown("""
         padding-top: 20px;
     }
     
+    /* Radio Menu Container */
     .stRadio div[role="radiogroup"] {
         background-color: #111827;
         padding: 12px;
@@ -92,6 +93,7 @@ st.markdown("""
         box-shadow: 0 4px 12px rgba(0,0,0,0.4);
     }
     
+    /* Radio Option Cards Style */
     .stRadio label {
         background-color: #1f2937 !important;
         color: #f3f4f6 !important;
@@ -135,14 +137,6 @@ st.markdown("""
         color: #f59e0b;
         font-weight: 800;
         font-size: 1.25rem;
-    }
-    
-    /* Strict 2x2 Grid for Quick Navigation Buttons */
-    .quick-nav-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-bottom: 10px;
     }
     
     /* Footer Styling */
@@ -365,40 +359,25 @@ if st.session_state.menu_selection == "🏠 Home / Dashboard":
         </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("<div style='margin-bottom: 15px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-bottom: 25px;'></div>", unsafe_allow_html=True)
     
-    # --- QUICK NAVIGATION & NOTIFICATION BELL (Strict 2x2 Grid using HTML wrapper) ---
-    st.markdown("<h3 style='text-align: center; margin-bottom: 15px;'>⚡ Quick Navigation</h3>", unsafe_allow_html=True)
+    # --- QUICK NAVIGATION & NOTIFICATION BELL (Same Line Layout) ---
+    st.markdown("<h3 style='text-align: center;'>⚡ Quick Navigation</h3>", unsafe_allow_html=True)
     
-    # We use columns inside a container where we inject html wrappers to lock 2 columns on mobile
-    st.markdown('<div class="quick-nav-grid">', unsafe_allow_html=True)
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("➕ Create Booking"):
+    col_nc1, col_nc2, col_nc3 = st.columns([1, 2.5, 0.8])
+    with col_nc2:
+        if st.button("➕ Create New Booking"):
             st.session_state.menu_selection = "➕ New Booking"
             st.rerun()
-    with col2:
-        if st.button("📋 View Bookings"):
+        
+        st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+        
+        if st.button("📋 View All Bookings"):
             st.session_state.menu_selection = "📋 View Bookings"
             st.rerun()
             
-    with col1:
-        if st.button("🔍 Search Booking"):
-            st.session_state.menu_selection = "🔍 Search & Filter"
-            st.rerun()
-    with col2:
-        if st.button("❌ Delete Booking"):
-            st.session_state.menu_selection = "❌ Delete Booking"
-            st.rerun()
-            
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    st.markdown("<div style='height: 5px;'></div>", unsafe_allow_html=True)
-    
-    # Notification Bell centered neatly below
-    col_bell_c1, col_bell_c2, col_bell_c3 = st.columns([2, 1, 2])
-    with col_bell_c2:
+    with col_nc3:
+        st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
         if st.button("🔔", help="Click to View Live Alerts"):
             st.session_state.show_alerts = not st.session_state.get("show_alerts", False)
             st.rerun()
