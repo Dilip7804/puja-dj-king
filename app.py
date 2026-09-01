@@ -1,7 +1,9 @@
 import streamlit as st
 import pandas as pd
 import os
+import uuid
 from datetime import datetime, date
+import urllib.parse
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
@@ -21,7 +23,7 @@ st.markdown("""
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
     
-    /* Top Header Card - Fixed layout */
+    /* Top Header Card */
     .top-header-container {
         text-align: center;
         background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
@@ -128,7 +130,7 @@ st.markdown("""
         font-size: 1.3rem;
     }
     
-    /* Hide Default Sidebar to maximize mobile view */
+    /* Hide Default Sidebar */
     section[data-testid="stSidebar"] {
         display: none;
     }
@@ -181,11 +183,16 @@ def check_login():
 if not check_login():
     st.stop()
 
-# --- CSV FILE HANDLING ---
+# --- FILE & DIRECTORY HANDLING ---
 CSV_FILE = "puja_dj_bookings.csv"
 EXPENSE_CSV_FILE = "puja_dj_expenses.csv"
 CATEGORIES_CSV_FILE = "puja_dj_expense_categories.csv"
 EQUIPMENT_CSV_FILE = "puja_dj_equipment_list.csv"
+GALLERY_CSV_FILE = "puja_dj_gallery.csv"
+MEDIA_FOLDER = "gallery_media"
+
+if not os.path.exists(MEDIA_FOLDER):
+    os.makedirs(MEDIA_FOLDER)
 
 def load_data():
     if os.path.exists(CSV_FILE):
@@ -283,8 +290,26 @@ def save_all_equipment(eqs):
     df_eq = pd.DataFrame({"Equipment": eqs})
     df_eq.to_csv(EQUIPMENT_CSV_FILE, index=False)
 
+def load_gallery_data():
+    if os.path.exists(GALLERY_CSV_FILE):
+        df_gal = pd.read_csv(GALLERY_CSV_FILE)
+        expected_cols = ["ID", "Type", "Category", "Title", "Source", "Date_Added"]
+        for col in expected_cols:
+            if col not in df_gal.columns:
+                if col == "Category":
+                    df_gal[col] = "General Events"
+                else:
+                    df_gal[col] = ""
+        return df_gal
+    else:
+        return pd.DataFrame(columns=["ID", "Type", "Category", "Title", "Source", "Date_Added"])
+
+def save_gallery_data(df_gal):
+    df_gal.to_csv(GALLERY_CSV_FILE, index=False)
+
 df = load_data()
 df_expenses = load_expense_data()
+df_gallery = load_gallery_data()
 
 if "current_tab" not in st.session_state:
     st.session_state.current_tab = "🏠 Dashboard"
@@ -292,7 +317,7 @@ if "current_tab" not in st.session_state:
 if "show_notifications" not in st.session_state:
     st.session_state.show_notifications = False
 
-# --- TOP HEADER SECTION (Fixed) ---
+# --- TOP HEADER SECTION ---
 st.markdown("""
     <div class="top-header-container">
         <div class="welcome-text">Welcome Back</div>
@@ -301,18 +326,19 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# --- MODERN MOBILE-FRIENDLY TOP NAVIGATION TABS ---
+# --- TOP NAVIGATION TABS (Gallery Added to Menu) ---
 menu_options = [
     "🏠 Dashboard",
     "➕ New Booking", 
     "📋 Bookings", 
     "📈 Ledger", 
     "💸 Expenses", 
+    "🖼️ Gallery",
     "🔍 Search", 
     "❌ Delete"
 ]
 
-selected_menu = st.selectbox("📂 Control Panel Menu", menu_options, index=menu_options.index(st.session_state.current_tab), label_visibility="collapsed")
+selected_menu = st.selectbox("📂 Control Panel Menu", menu_options, index=menu_options.index(st.session_state.current_tab) if st.session_state.current_tab in menu_options else 0, label_visibility="collapsed")
 
 if selected_menu != st.session_state.current_tab:
     st.session_state.current_tab = selected_menu
@@ -368,6 +394,229 @@ if st.session_state.show_notifications:
                 st.info("ℹ️ Aane wale 3 dino me koi event nahi hai.")
     st.markdown("---")
 
+# --- SHARED GALLERY RENDER FUNCTION (Used in Dashboard & Gallery Tab) ---
+def render_gallery_section():
+    global df_gallery
+    
+    # First choose media type
+    selected_media_type = st.radio(
+        "🎯 Kya dekhna chahte hain?", 
+        ["Photo 📷", "Video 🎥"], 
+        horizontal=True, 
+        key="shared_media_type_select"
+    )
+    
+    type_str = "Photo" if "Photo" in selected_media_type else "Video"
+    type_filtered_df = df_gallery[df_gallery["Type"] == type_str]
+    
+    st.markdown("---")
+    
+    # Sub-options inside Photo / Video selection
+    action_tabs = st.tabs([
+        "👁️ View Gallery", 
+        "➕ Add Media", 
+        "✏️ Modify Media", 
+        "🗑️ Delete Media"
+    ])
+    
+    # --- SUB-TAB 1: VIEW CATEGORY-WISE MEDIA ---
+    with action_tabs[0]:
+        if type_filtered_df.empty:
+            st.warning(f"Is category ({type_str}) me abhi koi media uplabdh nahi hai.")
+        else:
+            available_cats = type_filtered_df["Category"].dropna().unique().tolist()
+            selected_category = st.selectbox(
+                f"📂 {type_str} ki Category Select Karein:", 
+                available_cats, 
+                key=f"shared_cat_select_{type_str}"
+            )
+            
+            final_filtered_df = type_filtered_df[type_filtered_df["Category"] == selected_category]
+            st.markdown(f"#### 📁 Showing {type_str}s under: **{selected_category}** ({len(final_filtered_df)} items)")
+            
+            if final_filtered_df.empty:
+                st.info("Is category me koi items nahi hain.")
+            else:
+                cols = st.columns(2)
+                for i, (_, row) in enumerate(final_filtered_df.iterrows()):
+                    with cols[i % 2]:
+                        st.markdown(f"##### {row['Title']}")
+                        st.caption(f"📅 Added: {row['Date_Added']} | Category: {row['Category']}")
+                        
+                        source = row["Source"]
+                        if row["Type"] == "Photo":
+                            if os.path.exists(source):
+                                st.image(source, use_container_width=True)
+                            else:
+                                st.error("❌ Photo File nahi mili.")
+                        elif row["Type"] == "Video":
+                            if source.startswith("http://") or source.startswith("https://"):
+                                embed_url = source
+                                if "youtube.com/watch?v=" in source:
+                                    video_id = source.split("watch?v=")[1].split("&")[0]
+                                    embed_url = f"https://www.youtube.com/embed/{video_id}"
+                                elif "youtu.be/" in source:
+                                    video_id = source.split("youtu.be/")[1].split("?")[0]
+                                    embed_url = f"https://www.youtube.com/embed/{video_id}"
+                                elif "youtube.com/shorts/" in source:
+                                    video_id = source.split("shorts/")[1].split("?")[0]
+                                    embed_url = f"https://www.youtube.com/embed/{video_id}"
+                                    
+                                st.markdown(f"""
+                                    <iframe width="100%" height="250" src="{embed_url}" 
+                                    title="YouTube video player" frameborder="0" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                    allowfullscreen style="border-radius: 12px;"></iframe>
+                                """, unsafe_allow_html=True)
+                            elif os.path.exists(source):
+                                st.video(source)
+                            else:
+                                st.error("❌ Video file ya link invalid hai.")
+                        
+                        # WhatsApp Share
+                        with st.expander(f"📤 WhatsApp par Share Karein ({row['Title']})"):
+                            wa_phone = st.text_input("WhatsApp Mobile Number (e.g., 919876543210):", key=f"shared_wa_phone_{row['ID']}")
+                            share_msg = f"🎧 *PUJA DJ KING* \nCheck out our {row['Type']}: *{row['Title']}* ({row['Category']})\nLink/Details: {source}"
+                            
+                            if st.button("💬 Send to WhatsApp", key=f"shared_wa_btn_{row['ID']}"):
+                                if wa_phone.strip():
+                                    encoded_msg = urllib.parse.quote(share_msg)
+                                    wa_url = f"https://api.whatsapp.com/send?phone={wa_phone.strip()}&text={encoded_msg}"
+                                    st.markdown(f'''
+                                        <a href="{wa_url}" target="_blank">
+                                            <button style="background-color: #25D366; color: white; padding: 10px 20px; border: none; border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer;">
+                                                👉 Click Here to Open WhatsApp & Send Message
+                                            </button>
+                                        </a>
+                                    ''', unsafe_allow_html=True)
+                                else:
+                                    st.warning("⚠️ Kripya valid WhatsApp mobile number enter karein.")
+                        st.markdown("---")
+
+    # --- SUB-TAB 2: ADD MEDIA ---
+    with action_tabs[1]:
+        default_photo_cats = ["Stage Setup", "Birthday Party", "Wedding Ceremony", "Live Concert", "Other Photos"]
+        default_video_cats = ["DJ Remix Reels", "Stage Performance", "Full Party Video", "Other Videos"]
+        
+        cat_options = default_photo_cats if type_str == "Photo" else default_video_cats
+        
+        with st.form(f"shared_add_media_form_{type_str}", clear_on_submit=True):
+            st.markdown(f"#### ➕ Add New {type_str}")
+            media_title = st.text_input("🖼️ Title / Description Likhein:")
+            selected_cat = st.selectbox("📂 Category Select Karein:", cat_options)
+            custom_cat = st.text_input("✨ Ya Naya Category Naam Likhein (Optional):")
+            
+            uploaded_file = None
+            video_url = ""
+            
+            if type_str == "Photo":
+                uploaded_file = st.file_uploader("📷 Photo File Upload Karein (JPG, PNG)", type=["jpg", "jpeg", "png"])
+            else:
+                v_choice = st.radio("Video Source:", ["YouTube / Web Link 🔗", "Upload Video File 📁"], horizontal=True)
+                if v_choice == "YouTube / Web Link 🔗":
+                    video_url = st.text_input("🔗 YouTube / Shorts URL:", placeholder="https://www.youtube.com/watch?v=...")
+                else:
+                    uploaded_file = st.file_uploader("🎥 Video File Upload Karein (MP4)", type=["mp4", "mov"])
+            
+            submit_media = st.form_submit_button("💾 Media Save Karein")
+            
+            if submit_media:
+                final_category = custom_cat.strip() if custom_cat.strip() else selected_cat
+                file_id = uuid.uuid4().hex[:8]
+                saved_source = ""
+                
+                if type_str == "Photo":
+                    if uploaded_file and media_title.strip():
+                        ext = uploaded_file.name.split(".")[-1]
+                        saved_source = os.path.join(MEDIA_FOLDER, f"photo_{file_id}.{ext}")
+                        with open(saved_source, "wb") as f:
+                            f.write(uploaded_file.getbuffer())
+                    else:
+                        st.warning("⚠️ Title aur Photo file dono dena zaroori hai.")
+                else:
+                    if video_url.strip() and media_title.strip():
+                        saved_source = video_url.strip()
+                    elif uploaded_file and media_title.strip():
+                        ext = uploaded_file.name.split(".")[-1]
+                        saved_source = os.path.join(MEDIA_FOLDER, f"video_{file_id}.{ext}")
+                        with open(saved_source, "wb") as f:
+                            f.write(uploaded_file.getbuffer())
+                    else:
+                        st.warning("⚠️ Title aur Video (Link ya File) dena zaroori hai.")
+                
+                if media_title.strip() and saved_source:
+                    new_media_row = pd.DataFrame({
+                        "ID": [file_id],
+                        "Type": [type_str],
+                        "Category": [final_category],
+                        "Title": [media_title.strip()],
+                        "Source": [saved_source],
+                        "Date_Added": [str(date.today())]
+                    })
+                    df_gallery = pd.concat([df_gallery, new_media_row], ignore_index=True)
+                    save_gallery_data(df_gallery)
+                    st.success("✅ Media Safalpurvak Add Ho Gaya!")
+                    st.rerun()
+
+    # --- SUB-TAB 3: MODIFY MEDIA ---
+    with action_tabs[2]:
+        st.markdown(f"#### ✏️ Modify Existing {type_str}")
+        if type_filtered_df.empty:
+            st.info("📭 Modify karne ke liye koi media nahi hai.")
+        else:
+            media_options = type_filtered_df["ID"].astype(str) + " - " + type_filtered_df["Title"].astype(str) + " (" + type_filtered_df["Category"].astype(str) + ")"
+            selected_media_mod = st.selectbox("Badalne ke liye Media Select Karein:", media_options, key=f"shared_mod_select_{type_str}")
+            
+            if selected_media_mod:
+                mod_id = selected_media_mod.split(" - ")[0]
+                row_idx = df_gallery[df_gallery["ID"] == mod_id].index[0]
+                current_media = df_gallery.loc[row_idx]
+                
+                updated_title = st.text_input("✏️ Title Edit Karein:", value=current_media["Title"], key=f"shared_mod_title_{type_str}")
+                updated_cat = st.text_input("📂 Category Edit Karein:", value=current_media["Category"], key=f"shared_mod_cat_{type_str}")
+                
+                if current_media["Type"] == "Video" and (current_media["Source"].startswith("http://") or current_media["Source"].startswith("https://")):
+                    updated_source = st.text_input("🔗 Video URL Edit Karein:", value=current_media["Source"], key=f"shared_mod_src_{type_str}")
+                else:
+                    updated_source = current_media["Source"]
+                    st.info(f"📁 Local File Path: `{current_media['Source']}`")
+                
+                if st.button("🔄 Update Media Info", key=f"shared_mod_btn_{type_str}"):
+                    if updated_title.strip() and updated_cat.strip():
+                        df_gallery.loc[row_idx, "Title"] = updated_title.strip()
+                        df_gallery.loc[row_idx, "Category"] = updated_cat.strip()
+                        df_gallery.loc[row_idx, "Source"] = updated_source.strip()
+                        save_gallery_data(df_gallery)
+                        st.success("✅ Media Information Modify Ho Gayi!")
+                        st.rerun()
+                    else:
+                        st.warning("⚠️ Fields khali nahi ho sakte.")
+
+    # --- SUB-TAB 4: DELETE MEDIA ---
+    with action_tabs[3]:
+        st.markdown(f"#### 🗑️ Delete {type_str}")
+        if type_filtered_df.empty:
+            st.info("📭 Delete karne ke liye koi media nahi hai.")
+        else:
+            media_options_del = type_filtered_df["ID"].astype(str) + " - " + type_filtered_df["Title"].astype(str) + " (" + type_filtered_df["Category"].astype(str) + ")"
+            selected_media_del = st.selectbox("Delete karne ke liye Select Karein:", media_options_del, key=f"shared_del_select_{type_str}")
+            
+            if st.button("❌ Selected Item Delete Karein", key=f"shared_del_btn_{type_str}"):
+                del_id = selected_media_del.split(" - ")[0]
+                row_idx = df_gallery[df_gallery["ID"] == del_id].index[0]
+                source_path = df_gallery.loc[row_idx, "Source"]
+                
+                if not source_path.startswith("http://") and not source_path.startswith("https://") and os.path.exists(source_path):
+                    try:
+                        os.remove(source_path)
+                    except:
+                        pass
+                
+                df_gallery = df_gallery.drop(row_idx).reset_index(drop=True)
+                save_gallery_data(df_gallery)
+                st.success("🗑️ Media Item Gallery se hata diya gaya hai!")
+                st.rerun()
+
 # --- ROUTING BASED ON TOP NAVIGATION SELECTION ---
 
 if st.session_state.current_tab == "🏠 Dashboard":
@@ -396,6 +645,10 @@ if st.session_state.current_tab == "🏠 Dashboard":
             </div>
         </div>
     """, unsafe_allow_html=True)
+
+    st.markdown("---")
+    st.markdown("### 🖼️ Gallery")
+    render_gallery_section()
 
 # --- 1. NEW BOOKING PAGE ---
 elif st.session_state.current_tab == "➕ New Booking":
@@ -688,7 +941,12 @@ elif st.session_state.current_tab == "💸 Expenses":
             st.success("🗑️ Kharcha record hata diya gaya!")
             st.rerun()
 
-# --- 5. SEARCH & FILTER PAGE ---
+# --- 5. DEDICATED GALLERY TAB ---
+elif st.session_state.current_tab == "🖼️ Gallery":
+    st.markdown("### 🖼️ Gallery Management")
+    render_gallery_section()
+
+# --- 6. SEARCH & FILTER PAGE ---
 elif st.session_state.current_tab == "🔍 Search":
     st.markdown("### 🔍 Booking Talashein (Search by Mobile / Name)")
     
@@ -709,7 +967,7 @@ elif st.session_state.current_tab == "🔍 Search":
     else:
         st.info("👆 Upar search box me kisi customer ka mobile number ya naam type karein.")
 
-# --- 6. DELETE BOOKING PAGE ---
+# --- 7. DELETE BOOKING PAGE ---
 elif st.session_state.current_tab == "❌ Delete":
     st.markdown("### 🗑️ Booking Delete Karein")
     
