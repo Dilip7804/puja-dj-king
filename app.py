@@ -397,20 +397,6 @@ if st.session_state.current_tab == "🏠 Dashboard":
         </div>
     """, unsafe_allow_html=True)
 
-    col_nc1, col_nc2, col_nc3 = st.columns([1, 2, 1])
-    with col_nc2:
-        if st.button("➕ Nayi Booking Karein"):
-            st.session_state.current_tab = "➕ New Booking"
-            st.session_state.show_notifications = False
-            st.rerun()
-        
-        st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
-        
-        if st.button("💸 Kharcha Jodein"):
-            st.session_state.current_tab = "💸 Expenses"
-            st.session_state.show_notifications = False
-            st.rerun()
-
 # --- 1. NEW BOOKING PAGE ---
 elif st.session_state.current_tab == "➕ New Booking":
     st.markdown("### 📝 Booking & Equipment Management")
