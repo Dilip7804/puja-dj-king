@@ -200,7 +200,7 @@ CSV_FILE = "puja_dj_bookings.csv"
 def load_data():
     if os.path.exists(CSV_FILE):
         df = pd.read_csv(CSV_FILE)
-        expected_cols = ["Customer Name", "Phone", "Event Dates", "Equipment", "Advance Paid", "Total Amount", "Balance Due", "Status", "Remarks"]
+        expected_cols = ["Customer Name", "Phone", "Event Type", "Event Dates", "Equipment", "Advance Paid", "Total Amount", "Balance Due", "Status", "Remarks"]
         for col in expected_cols:
             if col not in df.columns:
                 df[col] = "None"
@@ -211,10 +211,11 @@ def load_data():
         df["Status"] = df["Status"].astype(str)
         df["Customer Name"] = df["Customer Name"].astype(str)
         df["Phone"] = df["Phone"].astype(str)
+        df["Event Type"] = df["Event Type"].astype(str)
         return df
     else:
         return pd.DataFrame(columns=[
-            "Customer Name", "Phone", "Event Dates", "Equipment", "Advance Paid", "Total Amount", "Balance Due", "Status", "Remarks"
+            "Customer Name", "Phone", "Event Type", "Event Dates", "Equipment", "Advance Paid", "Total Amount", "Balance Due", "Status", "Remarks"
         ])
 
 def save_data(df):
@@ -281,7 +282,9 @@ if not df.empty:
             pending_alerts.append(f"⚠️ **{name}** ({phone}) ka **₹ {balance:,.0f}** balance baaki hai!")
             
         try:
-            ev_date = datetime.strptime(event_date_str.strip(), "%Y-%m-%d").date()
+            # Agar multiple dates hain toh pehli date se check karein
+            main_date_str = event_date_str.split(" & ")[0].strip()
+            ev_date = datetime.strptime(main_date_str, "%Y-%m-%d").date()
             diff_days = (ev_date - today_date).days
             if 0 <= diff_days <= 3:
                 upcoming_alerts.append(f"🚨 **{name}** ka event bilkul najdeek hai! Date: **{event_date_str}**")
@@ -326,7 +329,6 @@ equipment_options = [
 # --- ROUTING BASED ON MENU SELECTION ---
 
 if st.session_state.menu_selection == "🏠 Home / Dashboard":
-    # --- PROFESSIONAL BUSINESS METRICS (2x2 Grid) ---
     if not df.empty:
         total_bookings = len(df)
         total_revenue = df["Total Amount"].sum()
@@ -361,7 +363,6 @@ if st.session_state.menu_selection == "🏠 Home / Dashboard":
 
     st.markdown("<div style='margin-bottom: 25px;'></div>", unsafe_allow_html=True)
     
-    # --- QUICK NAVIGATION & NOTIFICATION BELL (Same Line Layout) ---
     st.markdown("<h3 style='text-align: center;'>⚡ Quick Navigation</h3>", unsafe_allow_html=True)
     
     col_nc1, col_nc2, col_nc3 = st.columns([1, 2.5, 0.8])
@@ -386,18 +387,32 @@ if st.session_state.menu_selection == "🏠 Home / Dashboard":
 elif st.session_state.menu_selection == "➕ New Booking":
     st.markdown("### 📝 Nayi Booking Darj Karein")
     
+    event_type = st.radio("🎯 Event Type Select Karein", ["Single Date", "Multiple Dates (2 Dates)"], horizontal=True)
+
     with st.form("booking_form", clear_on_submit=True):
         col1, col2 = st.columns(2)
         
         with col1:
             customer_name = st.text_input("👤 Customer Name")
             phone = st.text_input("📞 Mobile Number")
-            advance_paid = st.number_input("💵 Advance Amount (₹)", min_value=0, step=500)
             
         with col2:
-            event_dates = st.date_input("📅 Event Date(s)", value=datetime.today())
             total_amount = st.number_input("💰 Total Amount (₹)", min_value=0, step=1000)
-            
+            advance_paid = st.number_input("💵 Advance Amount (₹)", min_value=0, step=500)
+
+        st.markdown("---")
+        
+        if event_type == "Single Date":
+            single_date = st.date_input("📅 Event Date", value=datetime.today())
+            date_str = str(single_date)
+        else:
+            col_d1, col_d2 = st.columns(2)
+            with col_d1:
+                date_1 = st.date_input("📅 Event Date 1", value=datetime.today())
+            with col_d2:
+                date_2 = st.date_input("📅 Event Date 2", value=datetime.today())
+            date_str = f"{date_1} & {date_2}"
+
         selected_equipment = st.multiselect("🔊 Sound System / Equipment Select Karein", equipment_options)
         remarks = st.text_area("💬 Remarks / Notes (Location, Time, etc.)")
         
@@ -406,14 +421,13 @@ elif st.session_state.menu_selection == "➕ New Booking":
         if submit_btn:
             if customer_name and phone:
                 eq_str = ", ".join(selected_equipment)
-                date_str = str(event_dates)
-                
                 balance_due = float(total_amount) - float(advance_paid)
                 status = "Paid" if balance_due <= 0 else "Pending"
                 
                 new_row = pd.DataFrame({
                     "Customer Name": [str(customer_name)],
                     "Phone": [str(phone)],
+                    "Event Type": [str(event_type)],
                     "Event Dates": [date_str],
                     "Equipment": [eq_str],
                     "Advance Paid": [float(advance_paid)],
@@ -455,7 +469,7 @@ elif st.session_state.menu_selection == "📈 Ledger & Payments":
     if df.empty:
         st.info("📭 Ledger ke liye koi data available nahi hai.")
     else:
-        st.dataframe(df[["Customer Name", "Phone", "Event Dates", "Total Amount", "Advance Paid", "Balance Due", "Status"]], use_container_width=True)
+        st.dataframe(df[["Customer Name", "Phone", "Event Type", "Event Dates", "Total Amount", "Advance Paid", "Balance Due", "Status"]], use_container_width=True)
         
         st.markdown("---")
         st.markdown("### 💳 Update Payment / Clear Due Amount")
@@ -519,7 +533,7 @@ elif st.session_state.menu_selection == "🔍 Search & Filter":
         
         if not result_df.empty:
             st.success(f"🎯 Total {len(result_df)} match mile hain:")
-            display_cols = ["Customer Name", "Phone", "Event Dates", "Equipment", "Advance Paid", "Total Amount", "Balance Due", "Status"]
+            display_cols = ["Customer Name", "Phone", "Event Type", "Event Dates", "Equipment", "Advance Paid", "Total Amount", "Balance Due", "Status"]
             st.dataframe(result_df[display_cols], use_container_width=True)
         else:
             st.warning("❌ Is naam ya number se koi booking nahi mili.")
@@ -533,7 +547,7 @@ elif st.session_state.menu_selection == "❌ Delete Booking":
     if df.empty:
         st.info("📭 Delete karne ke liye koi record nahi hai.")
     else:
-        display_cols = ["Customer Name", "Phone", "Event Dates", "Advance Paid", "Total Amount", "Balance Due", "Status"]
+        display_cols = ["Customer Name", "Phone", "Event Type", "Event Dates", "Advance Paid", "Total Amount", "Balance Due", "Status"]
         st.dataframe(df[display_cols], use_container_width=True)
         
         row_idx = st.number_input("Kahin galti ho gayi? Upar table se Row Index number dalein jise delete karna hai:", min_value=0, max_value=max(0, len(df)-1), step=1)
