@@ -139,8 +139,8 @@ st.markdown("""
         color: #64748b;
         font-size: 0.8rem;
         font-weight: 700;
-        margin-top: 35px;
-        margin-bottom: 20px;
+        margin-top: 15px;
+        margin-bottom: 10px;
         letter-spacing: 1.5px;
         text-transform: uppercase;
     }
@@ -292,21 +292,6 @@ if "current_tab" not in st.session_state:
 if "show_notifications" not in st.session_state:
     st.session_state.show_notifications = False
 
-# --- TOP RIGHT CORNER ACTION BAR (BELL & LOGOUT ICONS) ---
-col_top_left, col_bell, col_logout = st.columns([5.2, 0.9, 0.9])
-
-with col_bell:
-    bell_label = "🔔" if not st.session_state.show_notifications else "❌"
-    if st.button(bell_label, help="View Alerts / Notifications"):
-        st.session_state.show_notifications = not st.session_state.show_notifications
-        st.rerun()
-
-with col_logout:
-    if st.button("🔒", help="Logout"):
-        st.session_state.authenticated = False
-        st.session_state.show_notifications = False
-        st.rerun()
-
 # --- TOP HEADER SECTION ---
 st.markdown("""
     <div class="top-header-container">
@@ -327,10 +312,8 @@ menu_options = [
     "❌ Delete"
 ]
 
-# Render custom selectbox style navigation on top for mobile ease
 selected_menu = st.selectbox("📂 Control Panel Menu", menu_options, index=menu_options.index(st.session_state.current_tab), label_visibility="collapsed")
 
-# Agar menu change kiya toh notification turant band ho jayega
 if selected_menu != st.session_state.current_tab:
     st.session_state.current_tab = selected_menu
     st.session_state.show_notifications = False
@@ -338,7 +321,7 @@ if selected_menu != st.session_state.current_tab:
 
 st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
 
-# --- CONDITIONAL NOTIFICATIONS & ALERTS (Only shows when bell icon is clicked) ---
+# --- CONDITIONAL NOTIFICATIONS & ALERTS ---
 if st.session_state.show_notifications:
     pending_alerts = []
     upcoming_alerts = []
@@ -759,6 +742,22 @@ elif st.session_state.current_tab == "❌ Delete":
                 st.success(f"🗑️ Row Index {row_idx} ko hata diya gaya hai!")
                 st.rerun()
 
-# --- FOOTER ---
+# --- FOOTER WITH NOTIFICATION & LOGOUT ICONS ON THE BOTTOM LEFT ---
 st.markdown("---")
-st.markdown('<div class="footer-text">Created by Dilip Singh</div>', unsafe_allow_html=True)
+col_footer_left, col_footer_right = st.columns([1.5, 3.5])
+
+with col_footer_left:
+    col_b_icon, col_l_icon = st.columns(2)
+    with col_b_icon:
+        bell_label = "🔔" if not st.session_state.show_notifications else "❌"
+        if st.button(bell_label, help="View Alerts / Notifications"):
+            st.session_state.show_notifications = not st.session_state.show_notifications
+            st.rerun()
+    with col_l_icon:
+        if st.button("🔒", help="Logout"):
+            st.session_state.authenticated = False
+            st.session_state.show_notifications = False
+            st.rerun()
+
+with col_footer_right:
+    st.markdown('<div class="footer-text">Created by Dilip Singh</div>', unsafe_allow_html=True)
