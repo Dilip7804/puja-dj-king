@@ -365,9 +365,9 @@ if st.session_state.current_tab == "🏠 Dashboard":
         </div>
     """, unsafe_allow_html=True)
 
-    # --- STYLISH QUICK ACTIONS SECTION (4 BUTTONS) ---
+    # --- STYLISH QUICK ACTIONS SECTION ---
     st.markdown("""
-        <div style="background: rgba(13, 17, 23, 0.75); backdrop-filter: blur(16px); padding: 14px 16px; border-radius: 18px; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 10px 30px rgba(0,0,0,0.6); margin-top: 10px; margin-bottom: 10px;">
+        <div style="background: rgba(13, 17, 23, 0.75); backdrop-filter: blur(16px); padding: 16px 18px; border-radius: 18px; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 10px 30px rgba(0,0,0,0.6); margin-top: 10px; margin-bottom: 10px;">
             <div style="color: #f59e0b; font-size: 0.9rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">⚡ Quick Actions</div>
         </div>
     """, unsafe_allow_html=True)
@@ -378,18 +378,9 @@ if st.session_state.current_tab == "🏠 Dashboard":
             st.session_state.current_tab = "➕ New Booking"
             st.session_state.show_notifications = False
             st.rerun()
-        if st.button("🔍 Search"):
-            st.session_state.current_tab = "🔍 Search"
-            st.session_state.show_notifications = False
-            st.rerun()
-            
     with qcol2:
-        if st.button("💸 Expense"):
+        if st.button("💸 Kharcha Jodein"):
             st.session_state.current_tab = "💸 Expenses"
-            st.session_state.show_notifications = False
-            st.rerun()
-        if st.button("📋 Bookings"):
-            st.session_state.current_tab = "📋 Bookings"
             st.session_state.show_notifications = False
             st.rerun()
 
