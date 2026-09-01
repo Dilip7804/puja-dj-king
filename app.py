@@ -198,6 +198,7 @@ if not check_login():
 CSV_FILE = "puja_dj_bookings.csv"
 EXPENSE_CSV_FILE = "puja_dj_expenses.csv"
 CATEGORIES_CSV_FILE = "puja_dj_expense_categories.csv"
+EQUIPMENT_CSV_FILE = "puja_dj_equipment_list.csv"
 
 def load_data():
     if os.path.exists(CSV_FILE):
@@ -260,15 +261,40 @@ def load_categories():
             pass
     return default_categories
 
+def save_category(cat_name):
+    cats = load_categories()
+    if cat_name not in cats:
+        cats.append(cat_name)
+        save_all_categories(cats)
+
 def save_all_categories(cats):
     df_cat = pd.DataFrame({"Category": cats})
     df_cat.to_csv(CATEGORIES_CSV_FILE, index=False)
 
-def save_category(new_cat):
-    cats = load_categories()
-    if new_cat not in cats:
-        cats.append(new_cat)
-        save_all_categories(cats)
+def load_equipment():
+    default_equipments = [
+        "JBL Line Array", 
+        "Dual Bass Heavy", 
+        "Double Top Box", 
+        "Full Sound & Light", 
+        "Generator Backup"
+    ]
+    if os.path.exists(EQUIPMENT_CSV_FILE):
+        try:
+            df_eq = pd.read_csv(EQUIPMENT_CSV_FILE)
+            if "Equipment" in df_eq.columns:
+                eqs = df_eq["Equipment"].dropna().astype(str).tolist()
+                for de in default_equipments:
+                    if de not in eqs:
+                        eqs.append(de)
+                return eqs
+        except:
+            pass
+    return default_equipments
+
+def save_all_equipment(eqs):
+    df_eq = pd.DataFrame({"Equipment": eqs})
+    df_eq.to_csv(EQUIPMENT_CSV_FILE, index=False)
 
 df = load_data()
 df_expenses = load_expense_data()
@@ -296,12 +322,6 @@ selected_menu = st.sidebar.radio("Select Option", options, index=options.index(s
 
 if selected_menu != st.session_state.menu_selection:
     st.session_state.menu_selection = selected_menu
-    st.markdown("""
-        <script>
-            const sidebarCollapseBtn = window.parent.document.querySelector('button[kind="header"]');
-            if (sidebarCollapseBtn) { sidebarCollapseBtn.click(); }
-        </script>
-    """, unsafe_allow_html=True)
     st.rerun()
 
 st.sidebar.markdown("---")
@@ -367,15 +387,6 @@ if st.session_state.get("show_alerts", False):
 
 st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
 
-# --- EQUIPMENT OPTIONS ---
-equipment_options = [
-    "JBL Line Array", 
-    "Dual Bass Heavy", 
-    "Double Top Box", 
-    "Full Sound & Light", 
-    "Generator Backup"
-]
-
 # --- ROUTING BASED ON MENU SELECTION ---
 
 if st.session_state.menu_selection == "🏠 Home / Dashboard":
@@ -427,67 +438,116 @@ if st.session_state.menu_selection == "🏠 Home / Dashboard":
             st.session_state.show_alerts = not st.session_state.get("show_alerts", False)
             st.rerun()
 
-# --- 1. NEW BOOKING PAGE ---
+# --- 1. NEW BOOKING PAGE (WITH EQUIPMENT MANAGER TAB) ---
 elif st.session_state.menu_selection == "➕ New Booking":
-    st.markdown("### 📝 Nayi Booking Darj Karein")
+    st.markdown("### 📝 Booking & Equipment Management")
     
-    event_type = st.radio("🎯 Event Type Select Karein", ["Single Date", "Multiple Dates (2 Dates)"], horizontal=True)
+    book_tab1, book_tab2 = st.tabs(["➕ Nayi Booking Darj Karein", "🔊 Sound System / Equipment Manage Karein"])
 
-    with st.form("booking_form", clear_on_submit=True):
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            customer_name = st.text_input("👤 Customer Name")
-            phone = st.text_input("📞 Mobile Number")
+    with book_tab1:
+        event_type = st.radio("🎯 Event Type Select Karein", ["Single Date", "Multiple Dates (2 Dates)"], horizontal=True)
+        equipment_list = load_equipment()
+
+        with st.form("booking_form", clear_on_submit=True):
+            col1, col2 = st.columns(2)
             
-        with col2:
-            total_amount = st.number_input("💰 Total Amount (₹)", min_value=0, step=1000)
-            advance_paid = st.number_input("💵 Advance Amount (₹)", min_value=0, step=500)
-
-        st.markdown("---")
-        
-        if event_type == "Single Date":
-            single_date = st.date_input("📅 Event Date", value=datetime.today())
-            date_str = str(single_date)
-        else:
-            col_d1, col_d2 = st.columns(2)
-            with col_d1:
-                date_1 = st.date_input("📅 Event Date 1", value=datetime.today())
-            with col_d2:
-                date_2 = st.date_input("📅 Event Date 2", value=datetime.today())
-            date_str = f"{date_1} & {date_2}"
-
-        selected_equipment = st.multiselect("🔊 Sound System / Equipment Select Karein", equipment_options)
-        remarks = st.text_area("💬 Remarks / Notes (Location, Time, etc.)")
-        
-        submit_btn = st.form_submit_button("🚀 Save Booking")
-        
-        if submit_btn:
-            if customer_name and phone:
-                eq_str = ", ".join(selected_equipment)
-                balance_due = float(total_amount) - float(advance_paid)
-                status = "Paid" if balance_due <= 0 else "Pending"
+            with col1:
+                customer_name = st.text_input("👤 Customer Name")
+                phone = st.text_input("📞 Mobile Number")
                 
-                new_row = pd.DataFrame({
-                    "Customer Name": [str(customer_name)],
-                    "Phone": [str(phone)],
-                    "Event Type": [str(event_type)],
-                    "Event Dates": [date_str],
-                    "Equipment": [eq_str],
-                    "Advance Paid": [float(advance_paid)],
-                    "Total Amount": [float(total_amount)],
-                    "Balance Due": [float(balance_due)],
-                    "Status": [str(status)],
-                    "Remarks": [str(remarks)]
-                })
-                
-                df = pd.concat([df, new_row], ignore_index=True)
-                save_data(df)
-                st.success("🎉 Booking Safalpurvak Save Ho Gayi!")
-                st.session_state.menu_selection = "🏠 Home / Dashboard"
-                st.rerun()
+            with col2:
+                total_amount = st.number_input("💰 Total Amount (₹)", min_value=0, step=1000)
+                advance_paid = st.number_input("💵 Advance Amount (₹)", min_value=0, step=500)
+
+            st.markdown("---")
+            
+            if event_type == "Single Date":
+                single_date = st.date_input("📅 Event Date", value=datetime.today())
+                date_str = str(single_date)
             else:
-                st.error("⚠️ Kripya Customer Name aur Mobile Number zaroor bharein!")
+                col_d1, col_d2 = st.columns(2)
+                with col_d1:
+                    date_1 = st.date_input("📅 Event Date 1", value=datetime.today())
+                with col_d2:
+                    date_2 = st.date_input("📅 Event Date 2", value=datetime.today())
+                date_str = f"{date_1} & {date_2}"
+
+            selected_equipment = st.multiselect("🔊 Sound System / Equipment Select Karein", equipment_list)
+            remarks = st.text_area("💬 Remarks / Notes (Location, Time, etc.)")
+            
+            submit_btn = st.form_submit_button("🚀 Save Booking")
+            
+            if submit_btn:
+                if customer_name and phone:
+                    eq_str = ", ".join(selected_equipment)
+                    balance_due = float(total_amount) - float(advance_paid)
+                    status = "Paid" if balance_due <= 0 else "Pending"
+                    
+                    new_row = pd.DataFrame({
+                        "Customer Name": [str(customer_name)],
+                        "Phone": [str(phone)],
+                        "Event Type": [str(event_type)],
+                        "Event Dates": [date_str],
+                        "Equipment": [eq_str],
+                        "Advance Paid": [float(advance_paid)],
+                        "Total Amount": [float(total_amount)],
+                        "Balance Due": [float(balance_due)],
+                        "Status": [str(status)],
+                        "Remarks": [str(remarks)]
+                    })
+                    
+                    df = pd.concat([df, new_row], ignore_index=True)
+                    save_data(df)
+                    st.success("🎉 Booking Safalpurvak Save Ho Gayi!")
+                    st.session_state.menu_selection = "🏠 Home / Dashboard"
+                    st.rerun()
+                else:
+                    st.error("⚠️ Kripya Customer Name aur Mobile Number zaroor bharein!")
+
+    with book_tab2:
+        st.markdown("#### ⚙️ Sound System / Equipment Add, Edit & Delete")
+        eq_list_current = load_equipment()
+        
+        col_eq1, col_eq2 = st.columns(2)
+        with col_eq1:
+            st.markdown("##### ➕ Naya Equipment Jodein")
+            new_eq_input = st.text_input("Equipment Naam Likhein (Jaise: JBL Bass, Mixer, etc.)")
+            if st.button("💾 Equipment Save Karein"):
+                if new_eq_input.strip():
+                    if new_eq_input.strip() not in eq_list_current:
+                        eq_list_current.append(new_eq_input.strip())
+                        save_all_equipment(eq_list_current)
+                        st.success(f"✅ '{new_eq_input.strip()}' safalpurvak add ho gaya!")
+                        st.rerun()
+                    else:
+                        st.warning("⚠️ Yeh equipment pehle se list me hai.")
+                else:
+                    st.warning("⚠️ Naam khali nahi ho sakta.")
+                    
+        with col_eq2:
+            st.markdown("##### ✏️ Edit / Delete Existing Equipment")
+            if eq_list_current:
+                selected_eq_edit = st.selectbox("Equipment Select Karein:", eq_list_current)
+                edited_eq_name = st.text_input("Naya Naam (Edit ke liye):", value=selected_eq_edit)
+                
+                col_sub_eq1, col_sub_eq2 = st.columns(2)
+                with col_sub_eq1:
+                    if st.button("🔄 Update Equipment"):
+                        if edited_eq_name.strip():
+                            idx = eq_list_current.index(selected_eq_edit)
+                            eq_list_current[idx] = edited_eq_name.strip()
+                            save_all_equipment(eq_list_current)
+                            st.success("✅ Equipment update ho gaya!")
+                            st.rerun()
+                with col_sub_eq2:
+                    if st.button("🗑️ Delete Equipment"):
+                        if len(eq_list_current) > 1:
+                            eq_list_current.remove(selected_eq_edit)
+                            save_all_equipment(eq_list_current)
+                            st.success("🗑️ Equipment hata diya gaya!")
+                            st.rerun()
+                        else:
+                            st.error("⚠️ Kam se kam ek equipment hona zaroori hai.")
 
 # --- 2. VIEW BOOKINGS PAGE ---
 elif st.session_state.menu_selection == "📋 View Bookings":
@@ -563,52 +623,55 @@ elif st.session_state.menu_selection == "📈 Ledger & Payments":
         col_l2.warning(f"⏳ Total Balance Due in Market: **₹ {df['Balance Due'].sum():,.0f}**")
         col_l3.success(f"✅ Total Collected Amount: **₹ {df['Advance Paid'].sum():,.0f}**")
 
-# --- 4. EXPENSE & LEDGER PAGE (WITH CATEGORY EDIT/DELETE MANAGEMENT) ---
+# --- 4. EXPENSE & LEDGER PAGE (WITH CLEAR FORM ON SUBMIT) ---
 elif st.session_state.menu_selection == "💸 Expense & Ledger":
     st.markdown("### 💸 Kharcha Darj Karein & Profit-Loss Ledger Dekhein")
     
-    # Load Dynamic Categories
     available_categories = load_categories()
     category_choices = available_categories + ["➕ Add New Category..."]
 
-    # Tabs for Expense Entry & Category Manager
     exp_tab1, exp_tab2 = st.tabs(["💸 Naya Kharcha Jodein", "⚙️ Expense Categories Manage Karein (Edit/Delete)"])
 
     with exp_tab1:
         st.markdown("#### 📝 Expense Entry Form")
-        col_e1, col_e2 = st.columns(2)
-        with col_e1:
-            exp_date = st.date_input("📅 Kharche ki Date", value=datetime.today())
-            selected_cat_option = st.selectbox("🏷️ Kharche ka Category", category_choices)
-            
-            final_category = selected_cat_option
-            if selected_cat_option == "➕ Add New Category...":
-                new_custom_cat = st.text_input("✨ Naya Category Naam Likhein:")
-                if new_custom_cat:
-                    final_category = new_custom_cat.strip()
-
-        with col_e2:
-            exp_amount = st.number_input("💰 Kharcha Amount (₹)", min_value=0, step=100)
-            exp_desc = st.text_input("💬 Description / Kis kaam ka kharcha tha?")
-            st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
-            save_exp_btn = st.button("💾 Kharcha Save Karein")
-            
-        if save_exp_btn:
-            if exp_amount > 0 and final_category and final_category != "➕ Add New Category...":
-                save_category(final_category)
+        
+        with st.form("expense_form", clear_on_submit=True):
+            col_e1, col_e2 = st.columns(2)
+            with col_e1:
+                exp_date = st.date_input("📅 Kharche ki Date", value=datetime.today())
+                selected_cat_option = st.selectbox("🏷️ Kharche ka Category", category_choices)
                 
-                new_exp_row = pd.DataFrame({
-                    "Date": [str(exp_date)],
-                    "Expense Category": [str(final_category)],
-                    "Amount": [float(exp_amount)],
-                    "Description": [str(exp_desc)]
-                })
-                df_expenses = pd.concat([df_expenses, new_exp_row], ignore_index=True)
-                save_expense_data(df_expenses)
-                st.success(f"✅ '{final_category}' ka kharcha safalpurvak save ho gaya!")
-                st.rerun()
-            else:
-                st.warning("⚠️ Kripya valid amount aur category name enter karein.")
+                new_custom_cat = st.text_input("✨ Naya Category Naam Likhein (Agar upar 'Add New' chuna ho):")
+
+            with col_e2:
+                exp_amount = st.number_input("💰 Kharcha Amount (₹)", min_value=0.0, step=100.0)
+                exp_desc = st.text_input("💬 Description / Kis kaam ka kharcha tha?")
+                st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
+                save_exp_btn = st.form_submit_button("💾 Kharcha Save Karein")
+                
+            if save_exp_btn:
+                final_category = selected_cat_option
+                if selected_cat_option == "➕ Add New Category...":
+                    if new_custom_cat.strip():
+                        final_category = new_custom_cat.strip()
+                    else:
+                        final_category = "Other Miscellaneous"
+                
+                if exp_amount > 0:
+                    save_category(final_category)
+                    
+                    new_exp_row = pd.DataFrame({
+                        "Date": [str(exp_date)],
+                        "Expense Category": [str(final_category)],
+                        "Amount": [float(exp_amount)],
+                        "Description": [str(exp_desc)]
+                    })
+                    df_expenses = pd.concat([df_expenses, new_exp_row], ignore_index=True)
+                    save_expense_data(df_expenses)
+                    st.success(f"✅ '{final_category}' ka kharcha safalpurvak save ho gaya!")
+                    st.rerun()
+                else:
+                    st.warning("⚠️ Kripya valid amount enter karein.")
 
     with exp_tab2:
         st.markdown("#### ⚙️ Manage Categories (Edit / Delete)")
@@ -620,12 +683,10 @@ elif st.session_state.menu_selection == "💸 Expense & Ledger":
                 new_cat_name = st.text_input("✏️ Naya Naam (Badalne ke liye):", value=selected_cat_to_edit)
                 if st.button("🔄 Category Update / Edit Karein"):
                     if new_cat_name.strip():
-                        # Update in category list
                         idx = available_categories.index(selected_cat_to_edit)
                         available_categories[idx] = new_cat_name.strip()
                         save_all_categories(available_categories)
                         
-                        # Update in existing expenses too so records don't break
                         if not df_expenses.empty:
                             df_expenses.loc[df_expenses["Expense Category"] == selected_cat_to_edit, "Expense Category"] = new_cat_name.strip()
                             save_expense_data(df_expenses)
@@ -650,7 +711,7 @@ elif st.session_state.menu_selection == "💸 Expense & Ledger":
 
     st.markdown("---")
     
-    # 2. Professional Profit & Loss Financial Summary
+    # Financial Summary
     st.markdown("### 📊 Professional Financial Summary (P&L Ledger)")
     
     total_income = df["Total Amount"].sum() if not df.empty else 0
@@ -681,7 +742,6 @@ elif st.session_state.menu_selection == "💸 Expense & Ledger":
 
     st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
     
-    # Category-wise Expense Breakdown
     if not df_expenses.empty:
         st.markdown("#### 📉 Category-wise Kharcha Breakdown")
         cat_grouped = df_expenses.groupby("Expense Category")["Amount"].sum().reset_index()
@@ -690,7 +750,6 @@ elif st.session_state.menu_selection == "💸 Expense & Ledger":
         st.markdown("#### 📋 Sabhi Kharcho ki Detail List")
         st.dataframe(df_expenses, use_container_width=True)
         
-        # Delete Expense Option
         exp_del_idx = st.number_input("Kisi kharche ki entry ko hatana ho toh uska Row Index dalein:", min_value=0, max_value=max(0, len(df_expenses)-1), step=1, key="del_exp_idx")
         if st.button("🗑️ Selected Kharcha Entry Delete Karein"):
             df_expenses = df_expenses.drop(exp_del_idx).reset_index(drop=True)
@@ -698,7 +757,7 @@ elif st.session_state.menu_selection == "💸 Expense & Ledger":
             st.success("🗑️ Kharcha record hata diya gaya hai!")
             st.rerun()
     else:
-        st.info("ℹ️ Abhi तक koi kharcha darj nahi kiya gaya hai.")
+        st.info("ℹ️ Abhi tak koi kharcha darj nahi kiya gaya hai.")
 
 # --- 5. SEARCH & FILTER PAGE ---
 elif st.session_state.menu_selection == "🔍 Search & Filter":
