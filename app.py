@@ -21,7 +21,7 @@ st.markdown("""
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
     
-    /* Top Header Card */
+    /* Top Header Card - Fixed layout */
     .top-header-container {
         text-align: center;
         background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
@@ -292,7 +292,7 @@ if "current_tab" not in st.session_state:
 if "show_notifications" not in st.session_state:
     st.session_state.show_notifications = False
 
-# --- TOP HEADER SECTION ---
+# --- TOP HEADER SECTION (Fixed) ---
 st.markdown("""
     <div class="top-header-container">
         <div class="welcome-text">Welcome Back</div>
@@ -742,22 +742,21 @@ elif st.session_state.current_tab == "❌ Delete":
                 st.success(f"🗑️ Row Index {row_idx} ko hata diya gaya hai!")
                 st.rerun()
 
-# --- FOOTER WITH NOTIFICATION & LOGOUT ICONS ON THE BOTTOM LEFT ---
+# --- FOOTER WITH NOTIFICATION ON LEFT & LOGOUT ON RIGHT ---
 st.markdown("---")
-col_footer_left, col_footer_right = st.columns([1.5, 3.5])
+col_footer_left, col_footer_right, col_footer_center = st.columns([1, 1, 2])
 
 with col_footer_left:
-    col_b_icon, col_l_icon = st.columns(2)
-    with col_b_icon:
-        bell_label = "🔔" if not st.session_state.show_notifications else "❌"
-        if st.button(bell_label, help="View Alerts / Notifications"):
-            st.session_state.show_notifications = not st.session_state.show_notifications
-            st.rerun()
-    with col_l_icon:
-        if st.button("🔒", help="Logout"):
-            st.session_state.authenticated = False
-            st.session_state.show_notifications = False
-            st.rerun()
+    bell_label = "🔔" if not st.session_state.show_notifications else "❌"
+    if st.button(bell_label, help="View Alerts / Notifications"):
+        st.session_state.show_notifications = not st.session_state.show_notifications
+        st.rerun()
 
 with col_footer_right:
+    if st.button("🔒", help="Logout"):
+        st.session_state.authenticated = False
+        st.session_state.show_notifications = False
+        st.rerun()
+
+with col_footer_center:
     st.markdown('<div class="footer-text">Created by Dilip Singh</div>', unsafe_allow_html=True)
