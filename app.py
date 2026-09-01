@@ -147,40 +147,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- LOGIN SYSTEM ---
-def check_login():
-    if "authenticated" not in st.session_state:
-        st.session_state.authenticated = False
-
-    if not st.session_state.authenticated:
-        st.markdown("<div style='height: 14vh;'></div>", unsafe_allow_html=True)
-        
-        col1, col2, col3 = st.columns([1, 1.3, 1])
-        with col2:
-            st.markdown("""
-                <div style="text-align: center; margin-bottom: 30px;">
-                    <div style="font-size: 4.5rem; line-height: 1; filter: drop-shadow(0 6px 15px rgba(245,158,11,0.4));">🎧</div>
-                    <h1 style="color: #f59e0b; font-weight: 900; font-size: 2.6rem; margin-top: 12px; margin-bottom: 0px;">PUJA DJ KING</h1>
-                    <p style="color: #64748b; font-size: 0.85rem; letter-spacing: 3px; text-transform: uppercase; margin-top: 6px;">Secure Management Portal</p>
-                </div>
-            """, unsafe_allow_html=True)
-            
-            with st.form("login_form"):
-                pin = st.text_input("PIN", type="password", placeholder="Enter 4-digit PIN", label_visibility="collapsed")
-                st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
-                
-                if st.form_submit_button("Secure Login 🚀"):
-                    if pin == "1234":
-                        st.session_state.authenticated = True
-                        st.rerun()
-                    else:
-                        st.error("❌ Galat PIN! Kripya dobara try karein.")
-        return False
-    return True
-
-if not check_login():
-    st.stop()
-
 # --- CSV FILE HANDLING ---
 CSV_FILE = "puja_dj_bookings.csv"
 EXPENSE_CSV_FILE = "puja_dj_expenses.csv"
@@ -742,20 +708,14 @@ elif st.session_state.current_tab == "❌ Delete":
                 st.success(f"🗑️ Row Index {row_idx} ko hata diya gaya hai!")
                 st.rerun()
 
-# --- FOOTER WITH NOTIFICATION ON LEFT & LOGOUT ON RIGHT ---
+# --- FOOTER WITH NOTIFICATION ON LEFT & CREATED BY IN CENTER ---
 st.markdown("---")
-col_footer_left, col_footer_right, col_footer_center = st.columns([1, 1, 2])
+col_footer_left, col_footer_center = st.columns([1, 3])
 
 with col_footer_left:
     bell_label = "🔔" if not st.session_state.show_notifications else "❌"
     if st.button(bell_label, help="View Alerts / Notifications"):
         st.session_state.show_notifications = not st.session_state.show_notifications
-        st.rerun()
-
-with col_footer_right:
-    if st.button("🔒", help="Logout"):
-        st.session_state.authenticated = False
-        st.session_state.show_notifications = False
         st.rerun()
 
 with col_footer_center:
