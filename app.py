@@ -29,7 +29,7 @@ st.markdown("""
         border-radius: 20px;
         border: 1px solid rgba(245, 158, 11, 0.2);
         box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
-        margin-bottom: 15px;
+        margin-bottom: 12px;
     }
     .welcome-text {
         color: #9ca3af;
@@ -286,6 +286,27 @@ def save_all_equipment(eqs):
 df = load_data()
 df_expenses = load_expense_data()
 
+if "current_tab" not in st.session_state:
+    st.session_state.current_tab = "🏠 Dashboard"
+
+if "show_notifications" not in st.session_state:
+    st.session_state.show_notifications = False
+
+# --- TOP RIGHT CORNER ACTION BAR (BELL & LOGOUT ICONS) ---
+col_top_left, col_bell, col_logout = st.columns([5.2, 0.9, 0.9])
+
+with col_bell:
+    bell_label = "🔔" if not st.session_state.show_notifications else "❌"
+    if st.button(bell_label, help="View Alerts / Notifications"):
+        st.session_state.show_notifications = not st.session_state.show_notifications
+        st.rerun()
+
+with col_logout:
+    if st.button("🔒", help="Logout"):
+        st.session_state.authenticated = False
+        st.session_state.show_notifications = False
+        st.rerun()
+
 # --- TOP HEADER SECTION ---
 st.markdown("""
     <div class="top-header-container">
@@ -306,12 +327,6 @@ menu_options = [
     "❌ Delete"
 ]
 
-if "current_tab" not in st.session_state:
-    st.session_state.current_tab = "🏠 Dashboard"
-
-if "show_notifications" not in st.session_state:
-    st.session_state.show_notifications = False
-
 # Render custom selectbox style navigation on top for mobile ease
 selected_menu = st.selectbox("📂 Control Panel Menu", menu_options, index=menu_options.index(st.session_state.current_tab), label_visibility="collapsed")
 
@@ -322,28 +337,6 @@ if selected_menu != st.session_state.current_tab:
     st.rerun()
 
 st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
-
-# Navigation row with Notification Bell and Logout buttons
-col_nav1, col_nav2, col_nav3 = st.columns([2.5, 1.5, 1])
-
-with col_nav2:
-    # Notification Bell Toggle Button
-    if st.session_state.show_notifications:
-        bell_btn_label = "🔔 Hide Alerts"
-    else:
-        bell_btn_label = "🔔 View Alerts"
-        
-    if st.button(bell_btn_label):
-        st.session_state.show_notifications = not st.session_state.show_notifications
-        st.rerun()
-
-with col_nav3:
-    if st.button("🔒 Logout"):
-        st.session_state.authenticated = False
-        st.session_state.show_notifications = False
-        st.rerun()
-
-st.markdown("---")
 
 # --- CONDITIONAL NOTIFICATIONS & ALERTS (Only shows when bell icon is clicked) ---
 if st.session_state.show_notifications:
