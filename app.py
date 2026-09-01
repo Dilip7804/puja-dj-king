@@ -14,9 +14,9 @@ st.set_page_config(
 # --- MODERN PREMIUM UI & STYLING ---
 st.markdown("""
     <style>
-    /* Main Theme & Background - Ultra Premium Dark */
+    /* Main Theme & Background */
     .stApp {
-        background: radial-gradient(circle at 50% 0%, #111827 0%, #060911 60%, #030407 100%);
+        background: linear-gradient(180deg, #05070b 0%, #0c1017 100%);
         color: #f3f4f6;
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
@@ -24,13 +24,12 @@ st.markdown("""
     /* Top Header Card - Fixed layout */
     .top-header-container {
         text-align: center;
-        background: linear-gradient(135deg, rgba(17, 24, 39, 0.85) 0%, rgba(13, 17, 23, 0.95) 100%);
-        padding: 18px 20px;
+        background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+        padding: 16px 20px;
         border-radius: 20px;
-        border: 1px solid rgba(245, 158, 11, 0.25);
-        box-shadow: 0 16px 35px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-        margin-bottom: 14px;
-        backdrop-filter: blur(12px);
+        border: 1px solid rgba(245, 158, 11, 0.2);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+        margin-bottom: 12px;
     }
     .welcome-text {
         color: #9ca3af;
@@ -45,7 +44,7 @@ st.markdown("""
         font-weight: 900;
         margin: 2px 0 0 0;
         letter-spacing: 0.5px;
-        text-shadow: 0 2px 12px rgba(245, 158, 11, 0.4);
+        text-shadow: 0 2px 10px rgba(245, 158, 11, 0.3);
     }
     .brand-subtitle {
         color: #94a3b8;
@@ -62,24 +61,24 @@ st.markdown("""
 
     /* Form Design */
     div.stForm {
-        background: rgba(13, 17, 23, 0.75);
-        backdrop-filter: blur(16px);
-        padding: 22px;
+        background: rgba(17, 24, 39, 0.7);
+        backdrop-filter: blur(10px);
+        padding: 20px;
         border-radius: 20px;
         border: 1px solid rgba(255, 255, 255, 0.08);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.5);
     }
 
     /* Inputs & Selectboxes */
     .stTextInput input, .stNumberInput input, .stTextArea textarea, .stSelectbox div[data-baseweb="select"] {
-        background-color: #0b0f19 !important;
+        background-color: #0f172a !important;
         color: #f8fafc !important;
         border-radius: 12px !important;
-        border: 1px solid #1e293b !important;
+        border: 1px solid #334155 !important;
     }
     .stTextInput input:focus, .stNumberInput input:focus {
         border-color: #f59e0b !important;
-        box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25) !important;
+        box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2) !important;
     }
 
     /* Glossy Primary Buttons */
@@ -91,12 +90,12 @@ st.markdown("""
         border: none;
         padding: 0.65rem 1.2rem;
         width: 100%;
-        box-shadow: 0 6px 18px rgba(245, 158, 11, 0.4);
+        box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35);
         transition: all 0.25s ease;
     }
     .stButton > button:hover {
         background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-        box-shadow: 0 8px 22px rgba(245, 158, 11, 0.55);
+        box-shadow: 0 8px 20px rgba(245, 158, 11, 0.5);
         transform: translateY(-1px);
     }
 
@@ -108,13 +107,12 @@ st.markdown("""
         margin-bottom: 20px;
     }
     .metric-card {
-        background: linear-gradient(135deg, rgba(17, 24, 39, 0.9) 0%, rgba(10, 14, 23, 0.95) 100%);
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: linear-gradient(135deg, #111827 0%, #0d1117 100%);
+        border: 1px solid #1f2937;
         padding: 16px 12px;
         border-radius: 16px;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.4);
         text-align: center;
-        backdrop-filter: blur(10px);
     }
     .metric-title {
         color: #9ca3af;
@@ -148,6 +146,40 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
+
+# --- LOGIN SYSTEM ---
+def check_login():
+    if "authenticated" not in st.session_state:
+        st.session_state.authenticated = False
+
+    if not st.session_state.authenticated:
+        st.markdown("<div style='height: 14vh;'></div>", unsafe_allow_html=True)
+        
+        col1, col2, col3 = st.columns([1, 1.3, 1])
+        with col2:
+            st.markdown("""
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <div style="font-size: 4.5rem; line-height: 1; filter: drop-shadow(0 6px 15px rgba(245,158,11,0.4));">🎧</div>
+                    <h1 style="color: #f59e0b; font-weight: 900; font-size: 2.6rem; margin-top: 12px; margin-bottom: 0px;">PUJA DJ KING</h1>
+                    <p style="color: #64748b; font-size: 0.85rem; letter-spacing: 3px; text-transform: uppercase; margin-top: 6px;">Secure Management Portal</p>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            with st.form("login_form"):
+                pin = st.text_input("PIN", type="password", placeholder="Enter 4-digit PIN", label_visibility="collapsed")
+                st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+                
+                if st.form_submit_button("Secure Login 🚀"):
+                    if pin == "1234":
+                        st.session_state.authenticated = True
+                        st.rerun()
+                    else:
+                        st.error("❌ Galat PIN! Kripya dobara try karein.")
+        return False
+    return True
+
+if not check_login():
+    st.stop()
 
 # --- CSV FILE HANDLING ---
 CSV_FILE = "puja_dj_bookings.csv"
@@ -315,7 +347,7 @@ if st.session_state.show_notifications:
 
     with st.container():
         st.markdown("""
-            <div style="background-color: #0b0f19; padding: 14px 16px; border-radius: 16px; border: 1px solid rgba(245, 158, 11, 0.35); margin-bottom: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.5);">
+            <div style="background-color: #111827; padding: 12px 15px; border-radius: 16px; border: 1px solid rgba(245, 158, 11, 0.3); margin-bottom: 15px;">
                 <h4 style="color: #f59e0b; margin-top: 0; margin-bottom: 10px; font-size: 1rem;">🔔 Live Notifications & Alerts</h4>
             </div>
         """, unsafe_allow_html=True)
@@ -365,20 +397,15 @@ if st.session_state.current_tab == "🏠 Dashboard":
         </div>
     """, unsafe_allow_html=True)
 
-    # --- STYLISH QUICK ACTIONS SECTION ---
-    st.markdown("""
-        <div style="background: rgba(13, 17, 23, 0.75); backdrop-filter: blur(16px); padding: 16px 18px; border-radius: 18px; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 10px 30px rgba(0,0,0,0.6); margin-top: 10px; margin-bottom: 10px;">
-            <div style="color: #f59e0b; font-size: 0.9rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">⚡ Quick Actions</div>
-        </div>
-    """, unsafe_allow_html=True)
-
-    qcol1, qcol2 = st.columns(2)
-    with qcol1:
-        if st.button("➕ Nayi Booking"):
+    col_nc1, col_nc2, col_nc3 = st.columns([1, 2, 1])
+    with col_nc2:
+        if st.button("➕ Nayi Booking Karein"):
             st.session_state.current_tab = "➕ New Booking"
             st.session_state.show_notifications = False
             st.rerun()
-    with qcol2:
+        
+        st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
+        
         if st.button("💸 Kharcha Jodein"):
             st.session_state.current_tab = "💸 Expenses"
             st.session_state.show_notifications = False
@@ -715,14 +742,20 @@ elif st.session_state.current_tab == "❌ Delete":
                 st.success(f"🗑️ Row Index {row_idx} ko hata diya gaya hai!")
                 st.rerun()
 
-# --- FOOTER WITH NOTIFICATION ON LEFT & CREATED BY IN CENTER ---
+# --- FOOTER WITH NOTIFICATION ON LEFT & LOGOUT ON RIGHT ---
 st.markdown("---")
-col_footer_left, col_footer_center = st.columns([1, 3])
+col_footer_left, col_footer_right, col_footer_center = st.columns([1, 1, 2])
 
 with col_footer_left:
     bell_label = "🔔" if not st.session_state.show_notifications else "❌"
     if st.button(bell_label, help="View Alerts / Notifications"):
         st.session_state.show_notifications = not st.session_state.show_notifications
+        st.rerun()
+
+with col_footer_right:
+    if st.button("🔒", help="Logout"):
+        st.session_state.authenticated = False
+        st.session_state.show_notifications = False
         st.rerun()
 
 with col_footer_center:
