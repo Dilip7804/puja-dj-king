@@ -11,143 +11,172 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- PREMIUM STYLING & AUTO-HIDE SIDEBAR SCRIPT ---
+# --- MODERN PREMIUM UI & STYLING ---
 st.markdown("""
     <style>
-    /* Main Background & Text */
+    /* Main Theme & Background */
     .stApp {
-        background-color: #0b0f19;
+        background: linear-gradient(180deg, #05070b 0%, #0c1017 100%);
         color: #f3f4f6;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
     
-    /* Top Header Layout (Centered PUJA DJ KING) */
+    /* Top Header Card */
     .top-header-container {
         text-align: center;
-        background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-        padding: 15px 20px;
-        border-radius: 14px;
-        border: 1px solid #374151;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-        margin-bottom: 15px;
+        background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+        padding: 18px 20px;
+        border-radius: 20px;
+        border: 1px solid rgba(245, 158, 11, 0.2);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+        margin-bottom: 20px;
     }
     .welcome-text {
         color: #9ca3af;
-        font-size: 0.85rem;
-        font-weight: 600;
+        font-size: 0.75rem;
+        font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 2px;
     }
     .brand-title {
         color: #f59e0b;
-        font-size: 1.6rem;
-        font-weight: 800;
-        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 900;
+        margin: 4px 0 2px 0;
+        letter-spacing: 0.5px;
+        text-shadow: 0 2px 10px rgba(245, 158, 11, 0.3);
+    }
+    .brand-subtitle {
+        color: #94a3b8;
+        font-size: 0.8rem;
+        font-weight: 500;
     }
 
-    /* Section Headers */
-    h2, h3 {
-        color: #f3f4f6 !important;
+    /* Section Headings */
+    h2, h3, h4 {
+        color: #f9fafb !important;
         font-weight: 700 !important;
+        letter-spacing: -0.3px;
     }
 
-    /* Form & Input Fields Container */
+    /* Form Design */
     div.stForm {
-        background-color: #111827;
-        padding: 15px;
-        border-radius: 14px;
-        border: 1px solid #374151;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        background: rgba(17, 24, 39, 0.7);
+        backdrop-filter: blur(10px);
+        padding: 20px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.5);
     }
 
-    /* Buttons Styling */
+    /* Inputs & Selectboxes */
+    .stTextInput input, .stNumberInput input, .stTextArea textarea, .stSelectbox div[data-baseweb="select"] {
+        background-color: #0f172a !important;
+        color: #f8fafc !important;
+        border-radius: 12px !important;
+        border: 1px solid #334155 !important;
+    }
+    .stTextInput input:focus, .stNumberInput input:focus {
+        border-color: #f59e0b !important;
+        box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2) !important;
+    }
+
+    /* Glossy Primary Buttons */
     .stButton > button {
         background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-        color: #0b0f19;
-        font-weight: 700;
-        border-radius: 10px;
+        color: #05070b;
+        font-weight: 800;
+        border-radius: 14px;
         border: none;
-        padding: 0.6rem 1.2rem;
+        padding: 0.65rem 1.2rem;
         width: 100%;
-        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-        transition: all 0.3s ease;
+        box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35);
+        transition: all 0.25s ease;
     }
     .stButton > button:hover {
         background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-        box-shadow: 0 6px 16px rgba(245, 158, 11, 0.5);
-        color: #000000;
+        box-shadow: 0 8px 20px rgba(245, 158, 11, 0.5);
+        transform: translateY(-1px);
+    }
+    .stButton > button:active {
+        transform: translateY(1px);
     }
 
-    /* SIDEBAR & PREMIUM MENU STYLING */
+    /* SIDEBAR & MENU STYLING */
     section[data-testid="stSidebar"] {
         background-color: #030712;
-        border-right: 1px solid #1f2937;
-        padding-top: 20px;
+        border-right: 1px solid #111827;
+        padding-top: 15px;
     }
     
-    /* Radio Menu Container */
     .stRadio div[role="radiogroup"] {
-        background-color: #111827;
-        padding: 12px;
-        border-radius: 14px;
-        border: 1px solid #374151;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        background-color: #0b0f19;
+        padding: 10px;
+        border-radius: 16px;
+        border: 1px solid #1f2937;
     }
     
-    /* Radio Option Cards Style */
     .stRadio label {
-        background-color: #1f2937 !important;
-        color: #f3f4f6 !important;
-        padding: 10px 15px !important;
-        border-radius: 10px !important;
-        margin-bottom: 8px !important;
+        background-color: #111827 !important;
+        color: #e2e8f0 !important;
+        padding: 11px 16px !important;
+        border-radius: 12px !important;
+        margin-bottom: 6px !important;
         font-weight: 600 !important;
-        border: 1px solid #374151 !important;
-        transition: all 0.3s ease-in-out !important;
+        border: 1px solid #1f2937 !important;
+        transition: all 0.2s ease !important;
         cursor: pointer;
     }
     .stRadio label:hover {
-        background: linear-gradient(135deg, #374151, #4b5563) !important;
+        background: linear-gradient(135deg, #1f2937, #374151) !important;
         border-color: #f59e0b !important;
         color: #f59e0b !important;
         transform: translateX(4px);
     }
 
-    /* Custom Metric Cards Grid Styling */
+    /* Metrics Grid Cards */
     .metrics-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-bottom: 15px;
+        gap: 12px;
+        margin-bottom: 20px;
     }
     .metric-card {
-        background-color: #111827;
-        border: 1px solid #374151;
-        padding: 12px;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        background: linear-gradient(135deg, #111827 0%, #0d1117 100%);
+        border: 1px solid #1f2937;
+        padding: 16px 12px;
+        border-radius: 16px;
+        box-shadow: 0 6px 16px rgba(0,0,0,0.4);
         text-align: center;
+        transition: transform 0.2s;
+    }
+    .metric-card:hover {
+        border-color: rgba(245, 158, 11, 0.3);
     }
     .metric-title {
         color: #9ca3af;
         font-weight: 600;
-        font-size: 0.8rem;
-        margin-bottom: 4px;
+        font-size: 0.75rem;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
     .metric-value {
         color: #f59e0b;
-        font-weight: 800;
-        font-size: 1.25rem;
+        font-weight: 900;
+        font-size: 1.3rem;
     }
     
-    /* Footer Styling */
+    /* Footer */
     .footer-text {
         text-align: center;
-        color: #9ca3af;
-        font-size: 0.85rem;
-        font-weight: 600;
-        margin-top: 30px;
+        color: #64748b;
+        font-size: 0.8rem;
+        font-weight: 700;
+        margin-top: 35px;
         margin-bottom: 20px;
-        letter-spacing: 1px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -161,25 +190,24 @@ def check_login():
         st.markdown("""
             <style>
             [data-testid="stSidebar"] {display: none;}
-            .stApp { background: radial-gradient(circle at center, #1e293b 0%, #020617 100%); }
+            .stApp { background: radial-gradient(circle at center, #0f172a 0%, #020617 100%); }
             </style>
         """, unsafe_allow_html=True)
         
-        st.markdown("<div style='height: 12vh;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='height: 14vh;'></div>", unsafe_allow_html=True)
         
-        col1, col2, col3 = st.columns([1, 1.2, 1])
+        col1, col2, col3 = st.columns([1, 1.3, 1])
         with col2:
             st.markdown("""
-                <div style="text-align: center; margin-bottom: 25px;">
-                    <div style="font-size: 4rem; line-height: 1;">🎧</div>
-                    <h1 style="color: #f59e0b; font-weight: 900; font-size: 2.8rem; margin-top: 10px; margin-bottom: 0px;">PUJA DJ KING</h1>
-                    <p style="color: #94a3b8; font-size: 1.1rem; letter-spacing: 2px; text-transform: uppercase;">Secure Portal</p>
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <div style="font-size: 4.5rem; line-height: 1; filter: drop-shadow(0 6px 15px rgba(245,158,11,0.4));">🎧</div>
+                    <h1 style="color: #f59e0b; font-weight: 900; font-size: 2.6rem; margin-top: 12px; margin-bottom: 0px;">PUJA DJ KING</h1>
+                    <p style="color: #64748b; font-size: 0.85rem; letter-spacing: 3px; text-transform: uppercase; margin-top: 6px;">Secure Management Portal</p>
                 </div>
             """, unsafe_allow_html=True)
             
             with st.form("login_form"):
-                st.markdown("<p style='color: #cbd5e1; font-weight: 600; margin-bottom: 5px;'>Security PIN Required</p>", unsafe_allow_html=True)
-                pin = st.text_input("PIN", type="password", placeholder="", label_visibility="collapsed")
+                pin = st.text_input("PIN", type="password", placeholder="Enter 4-digit PIN", label_visibility="collapsed")
                 st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
                 
                 if st.form_submit_button("Secure Login 🚀"):
@@ -329,12 +357,12 @@ if st.sidebar.button("🔒 Logout"):
     st.session_state.authenticated = False
     st.rerun()
 
-# --- TOP HEADER SECTION (Centered Branding) ---
+# --- TOP HEADER SECTION ---
 st.markdown("""
     <div class="top-header-container">
-        <div class="welcome-text">Welcome to</div>
+        <div class="welcome-text">Welcome Back</div>
         <div class="brand-title">🎧 PUJA DJ KING</div>
-        <div style="color: #9ca3af; font-size: 0.8rem; margin-top: 4px;">Professional Sound System & Event Management</div>
+        <div class="brand-subtitle">Professional Sound System & Event Management</div>
     </div>
 """, unsafe_allow_html=True)
 
@@ -365,7 +393,7 @@ if st.session_state.get("show_alerts", False):
     st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
     with st.container():
         st.markdown("""
-            <div style="background-color: #111827; padding: 15px; border-radius: 12px; border: 1px solid #f59e0b; margin-bottom: 15px;">
+            <div style="background-color: #111827; padding: 15px; border-radius: 16px; border: 1px solid #f59e0b; margin-bottom: 15px;">
                 <h4 style="color: #f59e0b; margin-top: 0;">🔔 Live Notifications & Alerts</h4>
             </div>
         """, unsafe_allow_html=True)
@@ -407,18 +435,16 @@ if st.session_state.menu_selection == "🏠 Home / Dashboard":
             </div>
             <div class="metric-card">
                 <div class="metric-title">💸 Total Expenses</div>
-                <div class="metric-value" style="color: #ef4444;">₹ {total_expense:,.0f}</div>
+                <div class="metric-value" style="color: #f87171;">₹ {total_expense:,.0f}</div>
             </div>
             <div class="metric-card">
                 <div class="metric-title">💎 Net Profit (Bachat)</div>
-                <div class="metric-value" style="color: #10b981;">₹ {net_profit:,.0f}</div>
+                <div class="metric-value" style="color: #34d399;">₹ {net_profit:,.0f}</div>
             </div>
         </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("<div style='margin-bottom: 25px;'></div>", unsafe_allow_html=True)
-    
-    st.markdown("<h3 style='text-align: center;'>⚡ Quick Navigation</h3>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-bottom: 20px;'></div>", unsafe_allow_html=True)
     
     col_nc1, col_nc2, col_nc3 = st.columns([1, 2.5, 0.8])
     with col_nc2:
@@ -433,12 +459,12 @@ if st.session_state.menu_selection == "🏠 Home / Dashboard":
             st.rerun()
             
     with col_nc3:
-        st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
         if st.button("🔔", help="Click to View Live Alerts"):
             st.session_state.show_alerts = not st.session_state.get("show_alerts", False)
             st.rerun()
 
-# --- 1. NEW BOOKING PAGE (WITH EQUIPMENT MANAGER TAB) ---
+# --- 1. NEW BOOKING PAGE ---
 elif st.session_state.menu_selection == "➕ New Booking":
     st.markdown("### 📝 Booking & Equipment Management")
     
@@ -623,7 +649,7 @@ elif st.session_state.menu_selection == "📈 Ledger & Payments":
         col_l2.warning(f"⏳ Total Balance Due in Market: **₹ {df['Balance Due'].sum():,.0f}**")
         col_l3.success(f"✅ Total Collected Amount: **₹ {df['Advance Paid'].sum():,.0f}**")
 
-# --- 4. EXPENSE & LEDGER PAGE (WITH CLEAR FORM ON SUBMIT) ---
+# --- 4. EXPENSE & LEDGER PAGE ---
 elif st.session_state.menu_selection == "💸 Expense & Ledger":
     st.markdown("### 💸 Kharcha Darj Karein & Profit-Loss Ledger Dekhein")
     
@@ -722,21 +748,21 @@ elif st.session_state.menu_selection == "💸 Expense & Ledger":
     col_f1.markdown(f"""
         <div class="metric-card">
             <div class="metric-title">💰 Total Kamai (Revenue)</div>
-            <div class="metric-value" style="color: #3b82f6;">₹ {total_income:,.0f}</div>
+            <div class="metric-value" style="color: #60a5fa;">₹ {total_income:,.0f}</div>
         </div>
     """, unsafe_allow_html=True)
     
     col_f2.markdown(f"""
         <div class="metric-card">
             <div class="metric-title">💸 Total Kharcha (Expenses)</div>
-            <div class="metric-value" style="color: #ef4444;">₹ {total_expense:,.0f}</div>
+            <div class="metric-value" style="color: #f87171;">₹ {total_expense:,.0f}</div>
         </div>
     """, unsafe_allow_html=True)
     
     col_f3.markdown(f"""
         <div class="metric-card">
             <div class="metric-title">💎 Shuddh Bachat (Net Profit)</div>
-            <div class="metric-value" style="color: #10b981;">₹ {net_savings:,.0f}</div>
+            <div class="metric-value" style="color: #34d399;">₹ {net_savings:,.0f}</div>
         </div>
     """, unsafe_allow_html=True)
 
