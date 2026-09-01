@@ -326,7 +326,7 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# --- TOP NAVIGATION TABS (Gallery Added to Menu) ---
+# --- TOP NAVIGATION TABS ---
 menu_options = [
     "🏠 Dashboard",
     "➕ New Booking", 
@@ -394,11 +394,10 @@ if st.session_state.show_notifications:
                 st.info("ℹ️ Aane wale 3 dino me koi event nahi hai.")
     st.markdown("---")
 
-# --- SHARED GALLERY RENDER FUNCTION (Used in Dashboard & Gallery Tab) ---
+# --- SHARED GALLERY RENDER FUNCTION (Mobile Upload Bug Fixed) ---
 def render_gallery_section():
     global df_gallery
     
-    # First choose media type
     selected_media_type = st.radio(
         "🎯 Kya dekhna chahte hain?", 
         ["Photo 📷", "Video 🎥"], 
@@ -411,7 +410,6 @@ def render_gallery_section():
     
     st.markdown("---")
     
-    # Sub-options inside Photo / Video selection
     action_tabs = st.tabs([
         "👁️ View Gallery", 
         "➕ Add Media", 
@@ -473,7 +471,6 @@ def render_gallery_section():
                             else:
                                 st.error("❌ Video file ya link invalid hai.")
                         
-                        # WhatsApp Share
                         with st.expander(f"📤 WhatsApp par Share Karein ({row['Title']})"):
                             wa_phone = st.text_input("WhatsApp Mobile Number (e.g., 919876543210):", key=f"shared_wa_phone_{row['ID']}")
                             share_msg = f"🎧 *PUJA DJ KING* \nCheck out our {row['Type']}: *{row['Title']}* ({row['Category']})\nLink/Details: {source}"
@@ -493,70 +490,70 @@ def render_gallery_section():
                                     st.warning("⚠️ Kripya valid WhatsApp mobile number enter karein.")
                         st.markdown("---")
 
-    # --- SUB-TAB 2: ADD MEDIA ---
+    # --- SUB-TAB 2: ADD MEDIA (Mobile Friendly without st.form) ---
     with action_tabs[1]:
         default_photo_cats = ["Stage Setup", "Birthday Party", "Wedding Ceremony", "Live Concert", "Other Photos"]
         default_video_cats = ["DJ Remix Reels", "Stage Performance", "Full Party Video", "Other Videos"]
         
         cat_options = default_photo_cats if type_str == "Photo" else default_video_cats
         
-        with st.form(f"shared_add_media_form_{type_str}", clear_on_submit=True):
-            st.markdown(f"#### ➕ Add New {type_str}")
-            media_title = st.text_input("🖼️ Title / Description Likhein:")
-            selected_cat = st.selectbox("📂 Category Select Karein:", cat_options)
-            custom_cat = st.text_input("✨ Ya Naya Category Naam Likhein (Optional):")
-            
-            uploaded_file = None
-            video_url = ""
+        st.markdown(f"#### ➕ Add New {type_str}")
+        media_title = st.text_input("🖼️ Title / Description Likhein:", key="mob_media_title")
+        selected_cat = st.selectbox("📂 Category Select Karein:", cat_options, key="mob_sel_cat")
+        custom_cat = st.text_input("✨ Ya Naya Category Naam Likhein (Optional):", key="mob_custom_cat")
+        
+        uploaded_file = None
+        video_url = ""
+        
+        if type_str == "Photo":
+            uploaded_file = st.file_uploader("📷 Photo File Upload Karein (JPG, PNG)", type=["jpg", "jpeg", "png"], key="mob_photo_up")
+        else:
+            v_choice = st.radio("Video Source:", ["YouTube / Web Link 🔗", "Upload Video File 📁"], horizontal=True, key="mob_v_choice")
+            if v_choice == "YouTube / Web Link 🔗":
+                video_url = st.text_input("🔗 YouTube / Shorts URL:", placeholder="https://www.youtube.com/watch?v=...", key="mob_v_url")
+            else:
+                uploaded_file = st.file_uploader("🎥 Video File Upload Karein (MP4)", type=["mp4", "mov"], key="mob_v_file")
+        
+        st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+        submit_media = st.button("💾 Media Save Karein", key="mob_save_media_btn")
+        
+        if submit_media:
+            final_category = custom_cat.strip() if custom_cat.strip() else selected_cat
+            file_id = uuid.uuid4().hex[:8]
+            saved_source = ""
             
             if type_str == "Photo":
-                uploaded_file = st.file_uploader("📷 Photo File Upload Karein (JPG, PNG)", type=["jpg", "jpeg", "png"])
+                if uploaded_file is not None and media_title.strip() != "":
+                    ext = uploaded_file.name.split(".")[-1]
+                    saved_source = os.path.join(MEDIA_FOLDER, f"photo_{file_id}.{ext}")
+                    with open(saved_source, "wb") as f:
+                        f.write(uploaded_file.getbuffer())
+                else:
+                    st.warning("⚠️ Kripya Title aur Photo file dono select karein.")
             else:
-                v_choice = st.radio("Video Source:", ["YouTube / Web Link 🔗", "Upload Video File 📁"], horizontal=True)
-                if v_choice == "YouTube / Web Link 🔗":
-                    video_url = st.text_input("🔗 YouTube / Shorts URL:", placeholder="https://www.youtube.com/watch?v=...")
+                if video_url.strip() and media_title.strip():
+                    saved_source = video_url.strip()
+                elif uploaded_file is not None and media_title.strip() != "":
+                    ext = uploaded_file.name.split(".")[-1]
+                    saved_source = os.path.join(MEDIA_FOLDER, f"video_{file_id}.{ext}")
+                    with open(saved_source, "wb") as f:
+                        f.write(uploaded_file.getbuffer())
                 else:
-                    uploaded_file = st.file_uploader("🎥 Video File Upload Karein (MP4)", type=["mp4", "mov"])
+                    st.warning("⚠️ Kripya Title aur Video (Link ya File) dono dein.")
             
-            submit_media = st.form_submit_button("💾 Media Save Karein")
-            
-            if submit_media:
-                final_category = custom_cat.strip() if custom_cat.strip() else selected_cat
-                file_id = uuid.uuid4().hex[:8]
-                saved_source = ""
-                
-                if type_str == "Photo":
-                    if uploaded_file and media_title.strip():
-                        ext = uploaded_file.name.split(".")[-1]
-                        saved_source = os.path.join(MEDIA_FOLDER, f"photo_{file_id}.{ext}")
-                        with open(saved_source, "wb") as f:
-                            f.write(uploaded_file.getbuffer())
-                    else:
-                        st.warning("⚠️ Title aur Photo file dono dena zaroori hai.")
-                else:
-                    if video_url.strip() and media_title.strip():
-                        saved_source = video_url.strip()
-                    elif uploaded_file and media_title.strip():
-                        ext = uploaded_file.name.split(".")[-1]
-                        saved_source = os.path.join(MEDIA_FOLDER, f"video_{file_id}.{ext}")
-                        with open(saved_source, "wb") as f:
-                            f.write(uploaded_file.getbuffer())
-                    else:
-                        st.warning("⚠️ Title aur Video (Link ya File) dena zaroori hai.")
-                
-                if media_title.strip() and saved_source:
-                    new_media_row = pd.DataFrame({
-                        "ID": [file_id],
-                        "Type": [type_str],
-                        "Category": [final_category],
-                        "Title": [media_title.strip()],
-                        "Source": [saved_source],
-                        "Date_Added": [str(date.today())]
-                    })
-                    df_gallery = pd.concat([df_gallery, new_media_row], ignore_index=True)
-                    save_gallery_data(df_gallery)
-                    st.success("✅ Media Safalpurvak Add Ho Gaya!")
-                    st.rerun()
+            if media_title.strip() and saved_source:
+                new_media_row = pd.DataFrame({
+                    "ID": [file_id],
+                    "Type": [type_str],
+                    "Category": [final_category],
+                    "Title": [media_title.strip()],
+                    "Source": [saved_source],
+                    "Date_Added": [str(date.today())]
+                })
+                df_gallery = pd.concat([df_gallery, new_media_row], ignore_index=True)
+                save_gallery_data(df_gallery)
+                st.success("✅ Media Safalpurvak Add Ho Gaya!")
+                st.rerun()
 
     # --- SUB-TAB 3: MODIFY MEDIA ---
     with action_tabs[2]:
@@ -986,7 +983,7 @@ elif st.session_state.current_tab == "❌ Delete":
                 st.success(f"🗑️ Row Index {row_idx} ko hata diya gaya hai!")
                 st.rerun()
 
-# --- FOOTER WITH NOTIFICATION ON LEFT & BRAND IN CENTER ---
+# --- FOOTER ---
 st.markdown("---")
 col_footer_left, col_footer_center = st.columns([1, 3])
 
