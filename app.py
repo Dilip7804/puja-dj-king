@@ -112,7 +112,7 @@ st.markdown("""
         transform: translateX(4px);
     }
 
-    /* Custom 2x2 Metric Cards Grid Styling */
+    /* Custom Metric Cards Grid Styling */
     .metrics-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -196,6 +196,8 @@ if not check_login():
 
 # --- CSV FILE HANDLING ---
 CSV_FILE = "puja_dj_bookings.csv"
+EXPENSE_CSV_FILE = "puja_dj_expenses.csv"
+CATEGORIES_CSV_FILE = "puja_dj_expense_categories.csv"
 
 def load_data():
     if os.path.exists(CSV_FILE):
@@ -221,7 +223,55 @@ def load_data():
 def save_data(df):
     df.to_csv(CSV_FILE, index=False)
 
+def load_expense_data():
+    if os.path.exists(EXPENSE_CSV_FILE):
+        df_exp = pd.read_csv(EXPENSE_CSV_FILE)
+        expected_cols = ["Date", "Expense Category", "Amount", "Description"]
+        for col in expected_cols:
+            if col not in df_exp.columns:
+                df_exp[col] = "None"
+        df_exp["Amount"] = pd.to_numeric(df_exp["Amount"], errors='coerce').fillna(0)
+        return df_exp
+    else:
+        return pd.DataFrame(columns=["Date", "Expense Category", "Amount", "Description"])
+
+def save_expense_data(df_exp):
+    df_exp.to_csv(EXPENSE_CSV_FILE, index=False)
+
+def load_categories():
+    default_categories = [
+        "Labor Kharcha (Majdoori)", 
+        "Petrol / Diesel", 
+        "Repairing / Maintenance", 
+        "Transport / Vehicle", 
+        "Food & Snacks", 
+        "Other Miscellaneous"
+    ]
+    if os.path.exists(CATEGORIES_CSV_FILE):
+        try:
+            df_cat = pd.read_csv(CATEGORIES_CSV_FILE)
+            if "Category" in df_cat.columns:
+                cats = df_cat["Category"].dropna().astype(str).tolist()
+                for dc in default_categories:
+                    if dc not in cats:
+                        cats.append(dc)
+                return cats
+        except:
+            pass
+    return default_categories
+
+def save_all_categories(cats):
+    df_cat = pd.DataFrame({"Category": cats})
+    df_cat.to_csv(CATEGORIES_CSV_FILE, index=False)
+
+def save_category(new_cat):
+    cats = load_categories()
+    if new_cat not in cats:
+        cats.append(new_cat)
+        save_all_categories(cats)
+
 df = load_data()
+df_expenses = load_expense_data()
 
 # --- SIDEBAR NAVIGATION SETUP ---
 st.sidebar.markdown("### 🎛️ Control Panel")
@@ -237,6 +287,7 @@ options = [
     "➕ New Booking", 
     "📋 View Bookings", 
     "📈 Ledger & Payments", 
+    "💸 Expense & Ledger", 
     "🔍 Search & Filter", 
     "❌ Delete Booking"
 ]
@@ -282,7 +333,6 @@ if not df.empty:
             pending_alerts.append(f"⚠️ **{name}** ({phone}) ka **₹ {balance:,.0f}** balance baaki hai!")
             
         try:
-            # Agar multiple dates hain toh pehli date se check karein
             main_date_str = event_date_str.split(" & ")[0].strip()
             ev_date = datetime.strptime(main_date_str, "%Y-%m-%d").date()
             diff_days = (ev_date - today_date).days
@@ -329,16 +379,10 @@ equipment_options = [
 # --- ROUTING BASED ON MENU SELECTION ---
 
 if st.session_state.menu_selection == "🏠 Home / Dashboard":
-    if not df.empty:
-        total_bookings = len(df)
-        total_revenue = df["Total Amount"].sum()
-        total_advance = df["Advance Paid"].sum()
-        total_pending = df["Balance Due"].sum()
-    else:
-        total_bookings = 0
-        total_revenue = 0
-        total_advance = 0
-        total_pending = 0
+    total_bookings = len(df) if not df.empty else 0
+    total_revenue = df["Total Amount"].sum() if not df.empty else 0
+    total_expense = df_expenses["Amount"].sum() if not df_expenses.empty else 0
+    net_profit = total_revenue - total_expense
 
     st.markdown(f"""
         <div class="metrics-grid">
@@ -347,16 +391,16 @@ if st.session_state.menu_selection == "🏠 Home / Dashboard":
                 <div class="metric-value">{total_bookings}</div>
             </div>
             <div class="metric-card">
-                <div class="metric-title">💰 Total Business</div>
+                <div class="metric-title">💰 Total Revenue</div>
                 <div class="metric-value">₹ {total_revenue:,.0f}</div>
             </div>
             <div class="metric-card">
-                <div class="metric-title">💵 Advance Received</div>
-                <div class="metric-value">₹ {total_advance:,.0f}</div>
+                <div class="metric-title">💸 Total Expenses</div>
+                <div class="metric-value" style="color: #ef4444;">₹ {total_expense:,.0f}</div>
             </div>
             <div class="metric-card">
-                <div class="metric-title">⏳ Pending Balance</div>
-                <div class="metric-value">₹ {total_pending:,.0f}</div>
+                <div class="metric-title">💎 Net Profit (Bachat)</div>
+                <div class="metric-value" style="color: #10b981;">₹ {net_profit:,.0f}</div>
             </div>
         </div>
     """, unsafe_allow_html=True)
@@ -373,8 +417,8 @@ if st.session_state.menu_selection == "🏠 Home / Dashboard":
         
         st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
         
-        if st.button("📋 View All Bookings"):
-            st.session_state.menu_selection = "📋 View Bookings"
+        if st.button("💸 Add Expense / Kharcha"):
+            st.session_state.menu_selection = "💸 Expense & Ledger"
             st.rerun()
             
     with col_nc3:
@@ -519,7 +563,144 @@ elif st.session_state.menu_selection == "📈 Ledger & Payments":
         col_l2.warning(f"⏳ Total Balance Due in Market: **₹ {df['Balance Due'].sum():,.0f}**")
         col_l3.success(f"✅ Total Collected Amount: **₹ {df['Advance Paid'].sum():,.0f}**")
 
-# --- 4. SEARCH & FILTER PAGE ---
+# --- 4. EXPENSE & LEDGER PAGE (WITH CATEGORY EDIT/DELETE MANAGEMENT) ---
+elif st.session_state.menu_selection == "💸 Expense & Ledger":
+    st.markdown("### 💸 Kharcha Darj Karein & Profit-Loss Ledger Dekhein")
+    
+    # Load Dynamic Categories
+    available_categories = load_categories()
+    category_choices = available_categories + ["➕ Add New Category..."]
+
+    # Tabs for Expense Entry & Category Manager
+    exp_tab1, exp_tab2 = st.tabs(["💸 Naya Kharcha Jodein", "⚙️ Expense Categories Manage Karein (Edit/Delete)"])
+
+    with exp_tab1:
+        st.markdown("#### 📝 Expense Entry Form")
+        col_e1, col_e2 = st.columns(2)
+        with col_e1:
+            exp_date = st.date_input("📅 Kharche ki Date", value=datetime.today())
+            selected_cat_option = st.selectbox("🏷️ Kharche ka Category", category_choices)
+            
+            final_category = selected_cat_option
+            if selected_cat_option == "➕ Add New Category...":
+                new_custom_cat = st.text_input("✨ Naya Category Naam Likhein:")
+                if new_custom_cat:
+                    final_category = new_custom_cat.strip()
+
+        with col_e2:
+            exp_amount = st.number_input("💰 Kharcha Amount (₹)", min_value=0, step=100)
+            exp_desc = st.text_input("💬 Description / Kis kaam ka kharcha tha?")
+            st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
+            save_exp_btn = st.button("💾 Kharcha Save Karein")
+            
+        if save_exp_btn:
+            if exp_amount > 0 and final_category and final_category != "➕ Add New Category...":
+                save_category(final_category)
+                
+                new_exp_row = pd.DataFrame({
+                    "Date": [str(exp_date)],
+                    "Expense Category": [str(final_category)],
+                    "Amount": [float(exp_amount)],
+                    "Description": [str(exp_desc)]
+                })
+                df_expenses = pd.concat([df_expenses, new_exp_row], ignore_index=True)
+                save_expense_data(df_expenses)
+                st.success(f"✅ '{final_category}' ka kharcha safalpurvak save ho gaya!")
+                st.rerun()
+            else:
+                st.warning("⚠️ Kripya valid amount aur category name enter karein.")
+
+    with exp_tab2:
+        st.markdown("#### ⚙️ Manage Categories (Edit / Delete)")
+        if available_categories:
+            selected_cat_to_edit = st.selectbox("Kiski category ko edit ya delete karna hai select karein:", available_categories, key="edit_cat_select")
+            
+            col_ce1, col_ce2 = st.columns(2)
+            with col_ce1:
+                new_cat_name = st.text_input("✏️ Naya Naam (Badalne ke liye):", value=selected_cat_to_edit)
+                if st.button("🔄 Category Update / Edit Karein"):
+                    if new_cat_name.strip():
+                        # Update in category list
+                        idx = available_categories.index(selected_cat_to_edit)
+                        available_categories[idx] = new_cat_name.strip()
+                        save_all_categories(available_categories)
+                        
+                        # Update in existing expenses too so records don't break
+                        if not df_expenses.empty:
+                            df_expenses.loc[df_expenses["Expense Category"] == selected_cat_to_edit, "Expense Category"] = new_cat_name.strip()
+                            save_expense_data(df_expenses)
+                            
+                        st.success(f"✅ Category successfully update ho kar '{new_cat_name.strip()}' ho gayi!")
+                        st.rerun()
+                    else:
+                        st.warning("⚠️ Naam khali nahi ho sakta.")
+                        
+            with col_ce2:
+                st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
+                if st.button("🗑️ Yeh Category Delete Karein"):
+                    if len(available_categories) > 1:
+                        available_categories.remove(selected_cat_to_edit)
+                        save_all_categories(available_categories)
+                        st.success(f"🗑️ Category '{selected_cat_to_edit}' ko hata diya gaya hai!")
+                        st.rerun()
+                    else:
+                        st.error("⚠️ Kam se kam ek category honi zaroori hai.")
+        else:
+            st.info("Koi custom category available nahi hai.")
+
+    st.markdown("---")
+    
+    # 2. Professional Profit & Loss Financial Summary
+    st.markdown("### 📊 Professional Financial Summary (P&L Ledger)")
+    
+    total_income = df["Total Amount"].sum() if not df.empty else 0
+    total_expense = df_expenses["Amount"].sum() if not df_expenses.empty else 0
+    net_savings = total_income - total_expense
+    
+    col_f1, col_f2, col_f3 = st.columns(3)
+    col_f1.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-title">💰 Total Kamai (Revenue)</div>
+            <div class="metric-value" style="color: #3b82f6;">₹ {total_income:,.0f}</div>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    col_f2.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-title">💸 Total Kharcha (Expenses)</div>
+            <div class="metric-value" style="color: #ef4444;">₹ {total_expense:,.0f}</div>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    col_f3.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-title">💎 Shuddh Bachat (Net Profit)</div>
+            <div class="metric-value" style="color: #10b981;">₹ {net_savings:,.0f}</div>
+        </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
+    
+    # Category-wise Expense Breakdown
+    if not df_expenses.empty:
+        st.markdown("#### 📉 Category-wise Kharcha Breakdown")
+        cat_grouped = df_expenses.groupby("Expense Category")["Amount"].sum().reset_index()
+        st.dataframe(cat_grouped, use_container_width=True)
+        
+        st.markdown("#### 📋 Sabhi Kharcho ki Detail List")
+        st.dataframe(df_expenses, use_container_width=True)
+        
+        # Delete Expense Option
+        exp_del_idx = st.number_input("Kisi kharche ki entry ko hatana ho toh uska Row Index dalein:", min_value=0, max_value=max(0, len(df_expenses)-1), step=1, key="del_exp_idx")
+        if st.button("🗑️ Selected Kharcha Entry Delete Karein"):
+            df_expenses = df_expenses.drop(exp_del_idx).reset_index(drop=True)
+            save_expense_data(df_expenses)
+            st.success("🗑️ Kharcha record hata diya gaya hai!")
+            st.rerun()
+    else:
+        st.info("ℹ️ Abhi तक koi kharcha darj nahi kiya gaya hai.")
+
+# --- 5. SEARCH & FILTER PAGE ---
 elif st.session_state.menu_selection == "🔍 Search & Filter":
     st.markdown("### 🔍 Booking Talashein (Search by Mobile / Name)")
     
@@ -540,7 +721,7 @@ elif st.session_state.menu_selection == "🔍 Search & Filter":
     else:
         st.info("👆 Upar search box me kisi customer ka mobile number ya naam type karein.")
 
-# --- 5. DELETE BOOKING PAGE ---
+# --- 6. DELETE BOOKING PAGE ---
 elif st.session_state.menu_selection == "❌ Delete Booking":
     st.markdown("### 🗑️ Booking Delete Karein")
     
