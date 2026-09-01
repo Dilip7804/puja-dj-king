@@ -742,20 +742,14 @@ elif st.session_state.current_tab == "❌ Delete":
                 st.success(f"🗑️ Row Index {row_idx} ko hata diya gaya hai!")
                 st.rerun()
 
-# --- FOOTER WITH NOTIFICATION ON LEFT & LOGOUT ON RIGHT ---
+# --- FOOTER WITH NOTIFICATION ON LEFT & BRAND IN CENTER ---
 st.markdown("---")
-col_footer_left, col_footer_right, col_footer_center = st.columns([1, 1, 2])
+col_footer_left, col_footer_center = st.columns([1, 3])
 
 with col_footer_left:
     bell_label = "🔔" if not st.session_state.show_notifications else "❌"
     if st.button(bell_label, help="View Alerts / Notifications"):
         st.session_state.show_notifications = not st.session_state.show_notifications
-        st.rerun()
-
-with col_footer_right:
-    if st.button("🔒", help="Logout"):
-        st.session_state.authenticated = False
-        st.session_state.show_notifications = False
         st.rerun()
 
 with col_footer_center:
