@@ -365,15 +365,20 @@ if st.session_state.current_tab == "🏠 Dashboard":
         </div>
     """, unsafe_allow_html=True)
 
-    col_nc1, col_nc2, col_nc3 = st.columns([1, 2, 1])
-    with col_nc2:
-        if st.button("➕ Nayi Booking Karein"):
+    # --- STYLISH QUICK ACTIONS SECTION ---
+    st.markdown("""
+        <div style="background: rgba(13, 17, 23, 0.75); backdrop-filter: blur(16px); padding: 16px 18px; border-radius: 18px; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 10px 30px rgba(0,0,0,0.6); margin-top: 10px; margin-bottom: 10px;">
+            <div style="color: #f59e0b; font-size: 0.9rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">⚡ Quick Actions</div>
+        </div>
+    """, unsafe_allow_html=True)
+
+    qcol1, qcol2 = st.columns(2)
+    with qcol1:
+        if st.button("➕ Nayi Booking"):
             st.session_state.current_tab = "➕ New Booking"
             st.session_state.show_notifications = False
             st.rerun()
-        
-        st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
-        
+    with qcol2:
         if st.button("💸 Kharcha Jodein"):
             st.session_state.current_tab = "💸 Expenses"
             st.session_state.show_notifications = False
